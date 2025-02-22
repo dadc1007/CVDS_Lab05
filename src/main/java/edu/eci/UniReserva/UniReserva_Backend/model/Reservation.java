@@ -1,11 +1,11 @@
 package edu.eci.UniReserva.UniReserva_Backend.model;
 
 import edu.eci.UniReserva.UniReserva_Backend.model.enums.ReservationStatus;
-import edu.eci.UniReserva.UniReserva_Backend.model.enums.TimeBlock;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Document(collection = "reservations")
 public class Reservation {
@@ -14,18 +14,24 @@ public class Reservation {
     private String userId;
     private String labId;
     private LocalDate date;
-    private TimeBlock block;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private int weeks;
+    private boolean interleaving;
     private String purpose;
     private ReservationStatus status;
 
     public Reservation() {
     }
 
-    public Reservation(String userId, String labId, LocalDate date, TimeBlock block, String purpose, ReservationStatus status) {
+    public Reservation(String userId, String labId, LocalDate date, LocalTime startTime, LocalTime endTime, int weeks, boolean interleaving, String purpose, ReservationStatus status) {
         this.userId = userId;
         this.labId = labId;
         this.date = date;
-        this.block = block;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.weeks = weeks;
+        this.interleaving = interleaving;
         this.purpose = purpose;
         this.status = status;
     }
@@ -58,12 +64,36 @@ public class Reservation {
         this.date = date;
     }
 
-    public TimeBlock getBlock() {
-        return block;
+    public LocalTime getStartTime() {
+        return startTime;
     }
 
-    public void setBlock(TimeBlock block) {
-        this.block = block;
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public int getWeeks() {
+        return weeks;
+    }
+
+    public void setWeeks(int weeks) {
+        this.weeks = weeks;
+    }
+
+    public boolean isInterleaving() {
+        return interleaving;
+    }
+
+    public void setInterleaving(boolean interleaving) {
+        this.interleaving = interleaving;
     }
 
     public String getPurpose() {

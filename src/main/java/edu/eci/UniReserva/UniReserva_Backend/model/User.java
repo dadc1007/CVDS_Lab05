@@ -13,7 +13,7 @@ public class User {
     private String name;
     private String email;
     private String password;
-    private List<String> reservationIds;
+    private List<String> reservations;
 
     public User() {}
 
@@ -22,12 +22,16 @@ public class User {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.reservationIds = new ArrayList<>();
+        this.reservations = new ArrayList<>();
     }
 
-    public String getId() { return id; }
+    public String getId() {
+        return id;
+    }
 
-    public void setId(String id) { this.id = id; }
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -53,11 +57,11 @@ public class User {
         this.password = password;
     }
 
-    public List<String> getReservationIds() {
-        return reservationIds;
+    public List<String> getReservations() {
+        return reservations;
     }
 
     public void addReservationId(String reservationId) {
-        this.reservationIds.add(reservationId);
+        this.reservations.add(reservationId);
     }
 }
