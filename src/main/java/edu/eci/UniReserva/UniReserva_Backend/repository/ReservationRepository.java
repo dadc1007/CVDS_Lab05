@@ -1,12 +1,14 @@
 package edu.eci.UniReserva.UniReserva_Backend.repository;
 
-import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
-import java.util.Optional;
-import java.time.LocalTime;
-import java.util.List;
+
+import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
 
 /**
  * Repository interface for managing reservations in MongoDB.
@@ -48,4 +50,10 @@ public interface ReservationRepository extends MongoRepository<Reservation, Stri
 
     @Query("SELECT r FROM Reservation r WHERE r.labId = :labId AND r.startTime = :startTime AND r.endTime = :endTime")
     Optional<Reservation> findByLabAndTime(String labId, LocalTime startTime, LocalTime endTime);
+
+    /**
+     * Find all reservations for a specific user.
+     */
+
+    List<Reservation> findByUserId(String userId);
 }

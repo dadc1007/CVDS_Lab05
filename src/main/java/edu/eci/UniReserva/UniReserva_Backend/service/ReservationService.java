@@ -1,10 +1,14 @@
 package edu.eci.UniReserva.UniReserva_Backend.service;
 import java.time.LocalTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
 import edu.eci.UniReserva.UniReserva_Backend.repository.ReservationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 public class ReservationService {
@@ -48,4 +52,22 @@ public class ReservationService {
     public boolean isLabAvailable(String labId, LocalTime startTime, LocalTime endTime) {
         return reservationRepository.findConflictingReservations(labId, startTime, endTime).isEmpty();
     }
+
+
+    /**
+     * Retrieves a list of reservations for a specific user, sorted by date and start time.
+     *
+     * @param userId the unique identifier of the user whose reservations are being fetched
+     * @return a list of {@link Reservation} objects belonging to the specified user,
+     *         sorted in ascending order by date and then by start time
+     */
+    public List<Reservation> getReservationsByUserId(String userId) {
+        return reservationRepository.findByUserId(userId)
+                .stream()
+                .sorted(Comparator.comparing(Reservation::getDate)
+                        .thenComparing(Reservation::getStartTime))
+                .collect(Collectors.toList());
+    }
+
+
 }

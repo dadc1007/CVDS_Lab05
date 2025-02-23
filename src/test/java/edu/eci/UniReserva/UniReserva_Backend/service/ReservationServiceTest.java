@@ -1,21 +1,28 @@
 package edu.eci.UniReserva.UniReserva_Backend.service;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
-import edu.eci.UniReserva.UniReserva_Backend.repository.ReservationRepository;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
 import edu.eci.UniReserva.UniReserva_Backend.model.enums.ReservationStatus;
-import edu.eci.UniReserva.UniReserva_Backend.service.ReservationService;
+import edu.eci.UniReserva.UniReserva_Backend.repository.ReservationRepository;
 
 public class ReservationServiceTest {
 
@@ -117,5 +124,37 @@ public class ReservationServiceTest {
 
         // Verificar que se llamó al repositorio para guardar la reserva
         verify(reservationRepository).save(testReservation);
-    }    
+    }
+    
+    
+    @Test
+    public void shouldReturnReservationsWhenUserHasReservations() {
+        
+        String userId = "user123";
+        Reservation res1 = new Reservation(userId, "lab1", LocalDate.now(), LocalTime.of(10, 0), LocalTime.of(11, 0), 1, false, "Study", null);
+        Reservation res2 = new Reservation(userId, "lab2", LocalDate.now().plusDays(1), LocalTime.of(12, 0), LocalTime.of(13, 0), 1, false, "Project", null);
+
+        when(reservationRepository.findByUserId(userId)).thenReturn(Arrays.asList(res1, res2));
+
+        // Ejecutar
+        List<Reservation> result = reservationService.getReservationsByUserId(userId);
+
+        // Verificar
+        assertEquals(2, result.size(), "El usuario debería tener 2 reservas");
+        verify(reservationRepository, times(1)).findByUserId(userId);
+    }
+
+    @Test
+    public void shouldNotReturnReservationsWhenUserHasNoReservations() {
+        
+        String userId = "user456";
+
+        when(reservationRepository.findByUserId(userId)).thenReturn(Collections.emptyList());
+
+        List<Reservation> result = reservationService.getReservationsByUserId(userId);
+
+        assertTrue(result.isEmpty(), "El usuario no debería tener reservas");
+        verify(reservationRepository, times(1)).findByUserId(userId);
+    }
 }
+
