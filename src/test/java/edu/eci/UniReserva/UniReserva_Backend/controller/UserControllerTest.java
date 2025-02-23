@@ -11,6 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -38,11 +40,25 @@ class UserControllerTest {
 
     @Test
     void shouldCreateUser() throws Exception {
-        String userJson = objectMapper.writeValueAsString(validUser);
+        String validUserJson = objectMapper.writeValueAsString(validUser);
+
+        when(userService.createUser(any(User.class))).thenReturn("User created successfully!");
 
         mockMvc.perform(post("/signup").contentType(MediaType.APPLICATION_JSON)
-                .content(userJson))
+                .content(validUserJson))
                 .andExpect(status().isOk())
                 .andExpect(content().string("User created successfully!"));
+    }
+
+    @Test
+    void shouldNotCreateUserWithDuplicatedEmail() throws Exception {
+        String duplicateEmailJson = objectMapper.writeValueAsString(duplicateEmail);
+
+        when(userService.createUser(any(User.class))).thenThrow(new IllegalArgumentException("Email already exists"));
+
+        mockMvc.perform(post("/signup").contentType(MediaType.APPLICATION_JSON)
+                .content(duplicateEmailJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Email already exists"));
     }
 }
