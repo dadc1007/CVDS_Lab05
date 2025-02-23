@@ -30,7 +30,31 @@ public class UserService {
     }
 
     public String updateUser(String id, User user) {
-        return "";
+        Optional<User> userOptional = userRepository.findById(id);
+
+        if (!userOptional.isPresent()) {
+            throw new IllegalArgumentException("User not found");
+        }
+
+        if (user.getEmail() != null) {
+            throw new IllegalArgumentException("The email cannot be updated");
+        }
+
+        if (user.getName() != null) {
+            userOptional.get().setName(user.getName());
+        }
+
+        if (user.getPassword() != null) {
+            if (!validPassword(user.getPassword())) {
+                throw new IllegalArgumentException("Invalid password");
+            }
+
+            userOptional.get().setPassword(user.getPassword());
+        }
+
+        userRepository.save(userOptional.get());
+
+        return "User updated successfully!";
     }
 
     private boolean emailExists(String email) {
