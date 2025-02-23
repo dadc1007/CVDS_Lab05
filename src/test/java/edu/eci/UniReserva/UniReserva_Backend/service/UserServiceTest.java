@@ -46,7 +46,12 @@ class UserServiceTest {
 
     @Test
     public void shouldNotCreateUserWithDuplicatedEmail() {
+        when(userRepository.findByEmail(validUser.getEmail())).thenReturn(Optional.of(validUser));
 
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.createUser(validUser));
+
+        assertEquals("Email already exists", exception.getMessage());
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
