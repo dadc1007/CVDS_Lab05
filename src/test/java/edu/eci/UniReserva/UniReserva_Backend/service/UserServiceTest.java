@@ -48,7 +48,7 @@ class UserServiceTest {
     public void shouldNotCreateUserWithDuplicatedEmail() {
         when(userRepository.findByEmail(validUser.getEmail())).thenReturn(Optional.of(validUser));
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.createUser(validUser));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.createUser(duplicateEmail));
 
         assertEquals("Email already exists", exception.getMessage());
         verify(userRepository, never()).save(any(User.class));
@@ -56,7 +56,10 @@ class UserServiceTest {
 
     @Test
     public void shouldNotCreateUserWithInvalidPassword() {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.createUser(invalidePassword));
 
+        assertEquals("Invalid password", exception.getMessage());
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
