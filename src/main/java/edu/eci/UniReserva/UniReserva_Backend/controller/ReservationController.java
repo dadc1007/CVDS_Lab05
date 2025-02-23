@@ -1,6 +1,7 @@
 package edu.eci.UniReserva.UniReserva_Backend.controller;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,11 +31,12 @@ public class ReservationController {
      * - 400 BAD REQUEST: The reservation could not be created due to invalid data or availability conflicts.
      */
     @PostMapping
-    public ResponseEntity<?> createReservation(@RequestBody Reservation reservation) {
-        return null;
-    }
-
-    public boolean isLabAvailable(String labId, LocalDateTime startTime, LocalDateTime endTime) {
-        return false;
+    public ResponseEntity<Object> createReservation(@RequestBody Reservation reservation) {
+        try {
+            Reservation createdReservation = reservationService.createReservation(reservation);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdReservation);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }

@@ -1,40 +1,36 @@
 package edu.eci.UniReserva.UniReserva_Backend.service;
 
-import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
-import edu.eci.UniReserva.UniReserva_Backend.model.enums.ReservationStatus;
-import edu.eci.UniReserva.UniReserva_Backend.repository.ReservationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mockito;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Optional;
+import edu.eci.UniReserva.UniReserva_Backend.repository.ReservationRepository;
+import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
+import edu.eci.UniReserva.UniReserva_Backend.model.enums.ReservationStatus;
+import edu.eci.UniReserva.UniReserva_Backend.service.ReservationService;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-@ExtendWith(MockitoExtension.class)
 public class ReservationServiceTest {
 
-    @Mock
     private ReservationRepository reservationRepository;
-    @Mock
-    private UserRepository UserRepository;
-    @Mock
-    private LabRepository labRepository;
-
-    @InjectMocks
     private ReservationService reservationService;
-
     private Reservation testReservation;
 
     @BeforeEach
     void setUp() {
+        // Crear el mock manualmente
+        reservationRepository = Mockito.mock(ReservationRepository.class);
+        
+        // Inyectarlo en el servicio
+        reservationService = new ReservationService(reservationRepository);
+
         // Inicializar una reserva de prueba con datos reales del modelo
         testReservation = new Reservation(
                 "user123",
@@ -69,18 +65,22 @@ public class ReservationServiceTest {
 
     @Test
     void shouldNotCreateReservationIfAlreadyExists() {
-        // Simular que la reserva ya existe en la base de datos
-        when(reservationRepository.findById(testReservation.getId())).thenReturn(Optional.of(testReservation));
-
-        // Ejecutar la prueba y esperar una excepción
+        when(reservationRepository.findByLabAndTime(
+            testReservation.getLabId(), 
+            testReservation.getStartTime(), 
+            testReservation.getEndTime()
+        )).thenReturn(Optional.of(testReservation));
+    
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             reservationService.createReservation(testReservation);
         });
-
-        // Validaciones
-        assertEquals("Lab is already booked for the requested time slot.", exception.getMessage());
-        verify(reservationRepository, never()).save(testReservation);
+    
+        assertEquals("A reservation for this lab and time slot already exists.", exception.getMessage());
+    
+        verify(reservationRepository, never()).save(any(Reservation.class));
     }
+    
+
 
     @Test
     void shouldThrowExceptionWhenReservationHasInvalidData() {
