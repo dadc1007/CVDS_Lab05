@@ -61,9 +61,4 @@ class UserServiceTest {
         assertEquals("Invalid password", exception.getMessage());
         verify(userRepository, never()).save(any(User.class));
     }
-
-    @Test
-    public void shouldReturnSuccessMessageWhenUserIsCreated() {
-
-    }
 }
