@@ -6,4 +6,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReservationRepository extends MongoRepository<Reservation, String> {
+    /**
+     * Checks if a reservation with the given ID exists in the database.
+     * 
+     * @param id Unique identifier of the reservation.
+     * @return true if the reservation exists, false otherwise.
+     */
+    boolean existsById(String id);
 }
