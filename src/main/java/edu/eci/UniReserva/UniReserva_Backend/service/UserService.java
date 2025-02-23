@@ -29,6 +29,10 @@ public class UserService {
         return "User created successfully!";
     }
 
+    public String updateUser(String id, User user) {
+        return "";
+    }
+
     private boolean emailExists(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
