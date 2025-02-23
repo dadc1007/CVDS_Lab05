@@ -61,4 +61,16 @@ class UserControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Email already exists"));
     }
+
+    @Test
+    void shouldNotCreateUserWithInvalidPassword() throws Exception {
+        String invalidPasswordJson = objectMapper.writeValueAsString(invalidePassword);
+
+        when(userService.createUser(any(User.class))).thenThrow(new IllegalArgumentException("Invalid password"));
+
+        mockMvc.perform(post("/signup").contentType(MediaType.APPLICATION_JSON)
+                .content(invalidPasswordJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Invalid password"));
+    }
 }
