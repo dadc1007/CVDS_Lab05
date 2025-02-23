@@ -84,7 +84,7 @@ class UserControllerTest {
 
         when(userService.updateUser(any(String.class), any(User.class))).thenReturn("User updated successfully!");
 
-        mockMvc.perform(patch("/user/{id}", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(patch("/user/{id}/update", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
                 .content(updateNameJson))
                 .andExpect(status().isOk())
                 .andExpect(content().string("User updated successfully!"));
@@ -96,7 +96,7 @@ class UserControllerTest {
 
         when(userService.updateUser(any(String.class), any(User.class))).thenReturn("User updated successfully!");
 
-        mockMvc.perform(patch("/user/{id}", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(patch("/user/{id}/update", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
                 .content(updatePasswordJson))
                 .andExpect(status().isOk())
                 .andExpect(content().string("User updated successfully!"));
@@ -108,7 +108,7 @@ class UserControllerTest {
 
         when(userService.updateUser(any(String.class), any(User.class))).thenThrow(new IllegalArgumentException("Invalid password"));
 
-        mockMvc.perform(patch("/user/{id}", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(patch("/user/{id}/update", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
                 .content(invalidPasswordJson))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Invalid password"));
@@ -120,7 +120,7 @@ class UserControllerTest {
 
         when(userService.updateUser(any(String.class), any(User.class))).thenThrow(new IllegalArgumentException("The email cannot be updated"));
 
-        mockMvc.perform(patch("/user/{id}", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(patch("/user/{id}/update", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
                 .content(invalidEmailJson))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("The email cannot be updated"));
@@ -132,9 +132,9 @@ class UserControllerTest {
 
         when(userService.updateUser(any(String.class), any(User.class))).thenThrow(new IllegalArgumentException("User not found"));
 
-        mockMvc.perform(patch("/user/{id}", "1111111111").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(patch("/user/{id}/update", "1111111111").contentType(MediaType.APPLICATION_JSON)
                 .content(updateNameJson))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isBadRequest())
                 .andExpect(content().string("User not found"));
     }
 }
