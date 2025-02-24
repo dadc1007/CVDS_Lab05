@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import edu.eci.UniReserva.UniReserva_Backend.model.enums.ReservationStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -69,5 +70,14 @@ public class ReservationService {
                 .collect(Collectors.toList());
     }
 
+    public String  updateReservationByReservationId(String reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId).orElse(null);
+        if(reservation == null) throw new IllegalArgumentException("Rerservation with id " + reservationId + " not found.");
+        if(reservation.getStatus().equals(ReservationStatus.CANCELED)) throw new IllegalArgumentException("This reservation is already cancelled");
+
+        reservation.setStatus(ReservationStatus.CANCELED);
+        reservationRepository.save(reservation);
+        return "Reservation updated successfully";
+    }
 
 }

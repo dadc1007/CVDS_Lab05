@@ -4,12 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
 import edu.eci.UniReserva.UniReserva_Backend.service.ReservationService;
@@ -55,6 +50,21 @@ public class ReservationController {
         return reservationService.getReservationsByUserId(userId);
     }
 
+    /**
+     * Update a status of a
+     * @param reserveId
+     * @return
+     */
+    @PutMapping("/update/{reserveId}")
+    public ResponseEntity<String> updateReserve(@PathVariable String reserveId) {
+    try{
+        String response = reservationService.updateReservationByReservationId(reserveId);
+        return ResponseEntity.ok(response);
+    }
+    catch(IllegalArgumentException e){
+        return ResponseEntity.badRequest().body(e.getMessage());}
+    }
 
-    
+
+
 }

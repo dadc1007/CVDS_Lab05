@@ -156,5 +156,41 @@ public class ReservationServiceTest {
         assertTrue(result.isEmpty(), "El usuario no debería tener reservas");
         verify(reservationRepository, times(1)).findByUserId(userId);
     }
+
+    @Test
+    void shouldUpdateReservationWhenItExist() {
+        when(reservationRepository.findById(testReservation.getId())).thenReturn(Optional.of(testReservation));
+        when(reservationRepository.save(testReservation)).thenReturn(testReservation);
+
+        String result = reservationService.updateReservationByReservationId(testReservation.getId());
+
+        assertEquals("Reservation updated successfully", result);
+        assertEquals(ReservationStatus.CANCELED, testReservation.getStatus());
+        verify(reservationRepository).save(testReservation);
+    }
+
+    @Test
+    void testUpdateReservationByReservationId_NotFound() {
+        when(reservationRepository.findById("123")).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            reservationService.updateReservationByReservationId("123");
+        });
+
+        assertEquals("Rerservation with id 123 not found.", exception.getMessage());
+    }
+
+    @Test
+    void testUpdateReservationByReservationId_AlreadyCancelled() {
+        testReservation.setStatus(ReservationStatus.CANCELED);
+        when(reservationRepository.findById("123")).thenReturn(Optional.of(testReservation));
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            reservationService.updateReservationByReservationId("123");
+        });
+
+        assertEquals("This reservation is already cancelled", exception.getMessage());
+    }
+
 }
 
