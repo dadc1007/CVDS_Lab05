@@ -61,8 +61,8 @@ public class ReservationController {
      * @param reservationId ID of the reservation to cancel.
      * @return ResponseEntity with status 200 if successful, 404 if not found, or 400 if already canceled.
      */
-    @PutMapping("/update/{reservationId}")
-    public ResponseEntity<String> updateReserve(@PathVariable String reservationId) {
+    @PutMapping("/cancel/{reservationId}")
+    public ResponseEntity<String> cancelReserve(@PathVariable String reservationId) {
     try{
         String response = reservationServiceImpl.cancelReservationByReservationId(reservationId);
         return ResponseEntity.ok(response);
