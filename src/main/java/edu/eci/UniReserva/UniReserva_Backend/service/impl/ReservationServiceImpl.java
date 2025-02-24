@@ -73,8 +73,22 @@ public class ReservationServiceImpl implements ReservationService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Cancels a reservation given its ID.
+     *
+     * This method should:
+     * - Retrieve the reservation from the database using its ID.
+     * - Check if the reservation exists, otherwise throw an appropriate exception.
+     * - Validate that the reservation is not already canceled.
+     * - Update the reservation status to "CANCELLED".
+     * - Save the updated reservation in the database.
+     *
+     * @param reservationId ID of the reservation to cancel.
+     * @throws IllegalArgumentException if the reservation does not exist.
+     * @throws IllegalStateException if the reservation is already cancelled.
+     */
     @Override
-    public String  updateReservationByReservationId(String reservationId) {
+    public String  cancelReservationByReservationId(String reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId).orElse(null);
         if(reservation == null) throw new IllegalArgumentException("Rerservation with id " + reservationId + " not found.");
         if(reservation.getStatus().equals(ReservationStatus.CANCELED)) throw new IllegalArgumentException("This reservation is already cancelled");

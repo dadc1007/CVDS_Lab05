@@ -9,5 +9,5 @@ public interface ReservationService {
     Reservation createReservation(Reservation reservation);
     public boolean isLabAvailable(String labId, LocalTime startTime, LocalTime endTime);
     public List<Reservation> getReservationsByUserId(String userId);
-    public String  updateReservationByReservationId(String reservationId);
+    public String cancelReservationByReservationId(String reservationId);
 }

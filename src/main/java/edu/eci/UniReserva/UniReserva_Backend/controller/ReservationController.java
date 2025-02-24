@@ -51,14 +51,20 @@ public class ReservationController {
     }
 
     /**
-     * Update a status of a
-     * @param reserveId
-     * @return
+     * Endpoint to cancel a reservation.
+     *
+     * This endpoint should:
+     * - Receive the reservation ID from the request path.
+     * - Call the service method to cancel the reservation.
+     * - Return an appropriate HTTP response.
+     *
+     * @param reservationId ID of the reservation to cancel.
+     * @return ResponseEntity with status 200 if successful, 404 if not found, or 400 if already canceled.
      */
-    @PutMapping("/update/{reserveId}")
-    public ResponseEntity<String> updateReserve(@PathVariable String reserveId) {
+    @PutMapping("/update/{reservationId}")
+    public ResponseEntity<String> updateReserve(@PathVariable String reservationId) {
     try{
-        String response = reservationServiceImpl.updateReservationByReservationId(reserveId);
+        String response = reservationServiceImpl.cancelReservationByReservationId(reservationId);
         return ResponseEntity.ok(response);
     }
     catch(IllegalArgumentException e){

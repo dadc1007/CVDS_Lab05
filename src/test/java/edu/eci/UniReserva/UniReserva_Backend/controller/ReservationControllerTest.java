@@ -78,7 +78,7 @@ public class ReservationControllerTest {
 
     @Test
     void testUpdateReserve_Success() throws Exception {
-        when(reservationServiceImpl.updateReservationByReservationId("123"))
+        when(reservationServiceImpl.cancelReservationByReservationId("123"))
                 .thenReturn("Reservation updated successfully");
 
         mockMvc.perform(put("/reservations/update/123"))
@@ -88,7 +88,7 @@ public class ReservationControllerTest {
 
     @Test
     void testUpdateReserve_NotFound() throws Exception {
-        when(reservationServiceImpl.updateReservationByReservationId("123"))
+        when(reservationServiceImpl.cancelReservationByReservationId("123"))
                 .thenThrow(new IllegalArgumentException("Reservation with id 123 not found."));
 
         mockMvc.perform(put("/reservations/update/123"))
@@ -98,7 +98,7 @@ public class ReservationControllerTest {
 
     @Test
     void testUpdateReserve_AlreadyCancelled() throws Exception {
-        when(reservationServiceImpl.updateReservationByReservationId("123"))
+        when(reservationServiceImpl.cancelReservationByReservationId("123"))
                 .thenThrow(new IllegalArgumentException("This reservation is already cancelled"));
 
         mockMvc.perform(put("/reservations/update/123"))
