@@ -2,6 +2,7 @@ package edu.eci.UniReserva.UniReserva_Backend.service;
 
 import edu.eci.UniReserva.UniReserva_Backend.model.User;
 import edu.eci.UniReserva.UniReserva_Backend.repository.UserRepository;
+import edu.eci.UniReserva.UniReserva_Backend.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,9 +16,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+class UserServiceImplTest {
     @InjectMocks
-    private UserService userService;
+    private UserServiceImpl userServiceImpl;
 
     @Mock
     private UserRepository userRepository;
@@ -42,7 +43,7 @@ class UserServiceTest {
         when(userRepository.findByEmail(validUser.getEmail())).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenReturn(validUser);
 
-        String result = userService.createUser(validUser);
+        String result = userServiceImpl.createUser(validUser);
 
         assertEquals("User created successfully!", result);
         verify(userRepository).save(validUser);
@@ -52,7 +53,7 @@ class UserServiceTest {
     public void shouldNotCreateUserWithDuplicatedEmail() {
         when(userRepository.findByEmail(validUser.getEmail())).thenReturn(Optional.of(validUser));
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.createUser(duplicateEmail));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userServiceImpl.createUser(duplicateEmail));
 
         assertEquals("Email already exists", exception.getMessage());
         verify(userRepository, never()).save(any(User.class));
@@ -60,7 +61,7 @@ class UserServiceTest {
 
     @Test
     public void shouldNotCreateUserWithInvalidPassword() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.createUser(invalidePassword));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userServiceImpl.createUser(invalidePassword));
 
         assertEquals("Invalid password", exception.getMessage());
         verify(userRepository, never()).save(any(User.class));
@@ -71,7 +72,7 @@ class UserServiceTest {
         when(userRepository.findById(validUser.getId())).thenReturn(Optional.of(validUser));
         when(userRepository.save(any(User.class))).thenReturn(updateName);
 
-        String result = userService.updateUser(validUser.getId(), new User(null, "Alejandro", null, null));
+        String result = userServiceImpl.updateUser(validUser.getId(), new User(null, "Alejandro", null, null));
 
         assertEquals("User updated successfully!", result);
         verify(userRepository).save(argThat(user ->
@@ -87,7 +88,7 @@ class UserServiceTest {
         when(userRepository.findById(validUser.getId())).thenReturn(Optional.of(validUser));
         when(userRepository.save(any(User.class))).thenReturn(updatePassword);
 
-        String result = userService.updateUser(validUser.getId(), new User(null, null, null, "NewPassword#123"));
+        String result = userServiceImpl.updateUser(validUser.getId(), new User(null, null, null, "NewPassword#123"));
 
         assertEquals("User updated successfully!", result);
         verify(userRepository).save(argThat(user ->
@@ -102,7 +103,7 @@ class UserServiceTest {
     public void shouldNotUpdateInvalidPassword() {
         when(userRepository.findById(validUser.getId())).thenReturn(Optional.of(validUser));
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.updateUser(validUser.getId(), new User(null, null, null, "newpassword#123")));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userServiceImpl.updateUser(validUser.getId(), new User(null, null, null, "newpassword#123")));
 
         assertEquals("Invalid password", exception.getMessage());
         verify(userRepository, never()).save(any(User.class));
@@ -112,7 +113,7 @@ class UserServiceTest {
     public void shouldNotUpdateEmail() {
         when(userRepository.findById(validUser.getId())).thenReturn(Optional.of(validUser));
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.updateUser(validUser.getId(), new User(null, null, "newEmail@gmail.com", null)));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userServiceImpl.updateUser(validUser.getId(), new User(null, null, "newEmail@gmail.com", null)));
 
         assertEquals("The email cannot be updated", exception.getMessage());
         verify(userRepository, never()).save(any(User.class));
@@ -122,7 +123,7 @@ class UserServiceTest {
     public void shouldNotUpdateNonExistentUser() {
         when(userRepository.findById(validUser.getId())).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.updateUser(validUser.getId(), new User(null, "Alejandro", null, null)));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userServiceImpl.updateUser(validUser.getId(), new User(null, "Alejandro", null, null)));
 
         assertEquals("User not found", exception.getMessage());
         verify(userRepository, never()).save(any(User.class));
