@@ -164,7 +164,7 @@ public class ReservationServiceImplTest {
         when(reservationRepository.findById(testReservation.getId())).thenReturn(Optional.of(testReservation));
         when(reservationRepository.save(testReservation)).thenReturn(testReservation);
 
-        String result = reservationServiceImpl.updateReservationByReservationId(testReservation.getId());
+        String result = reservationServiceImpl.cancelReservationByReservationId(testReservation.getId());
 
         assertEquals("Reservation updated successfully", result);
         assertEquals(ReservationStatus.CANCELED, testReservation.getStatus());
@@ -172,23 +172,23 @@ public class ReservationServiceImplTest {
     }
 
     @Test
-    void testUpdateReservationByReservationId_NotFound() {
+    void testCancelReservationByReservationId_NotFound() {
         when(reservationRepository.findById("123")).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            reservationServiceImpl.updateReservationByReservationId("123");
+            reservationServiceImpl.cancelReservationByReservationId("123");
         });
 
         assertEquals("Rerservation with id 123 not found.", exception.getMessage());
     }
 
     @Test
-    void testUpdateReservationByReservationId_AlreadyCancelled() {
+    void testCancelReservationByReservationId_AlreadyCancelled() {
         testReservation.setStatus(ReservationStatus.CANCELED);
         when(reservationRepository.findById("123")).thenReturn(Optional.of(testReservation));
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            reservationServiceImpl.updateReservationByReservationId("123");
+            reservationServiceImpl.cancelReservationByReservationId("123");
         });
 
         assertEquals("This reservation is already cancelled", exception.getMessage());
