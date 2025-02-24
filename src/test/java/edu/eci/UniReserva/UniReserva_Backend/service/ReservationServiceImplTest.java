@@ -11,6 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import edu.eci.UniReserva.UniReserva_Backend.service.impl.ReservationServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,10 +26,10 @@ import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
 import edu.eci.UniReserva.UniReserva_Backend.model.enums.ReservationStatus;
 import edu.eci.UniReserva.UniReserva_Backend.repository.ReservationRepository;
 
-public class ReservationServiceTest {
+public class ReservationServiceImplTest {
 
     private ReservationRepository reservationRepository;
-    private ReservationService reservationService;
+    private ReservationServiceImpl reservationServiceImpl;
     private Reservation testReservation;
 
     @BeforeEach
@@ -36,7 +38,7 @@ public class ReservationServiceTest {
         reservationRepository = Mockito.mock(ReservationRepository.class);
         
         // Inyectarlo en el servicio
-        reservationService = new ReservationService(reservationRepository);
+        reservationServiceImpl = new ReservationServiceImpl(reservationRepository);
 
         // Inicializar una reserva de prueba con datos reales del modelo
         testReservation = new Reservation(
@@ -58,7 +60,7 @@ public class ReservationServiceTest {
         when(reservationRepository.save(testReservation)).thenReturn(testReservation);
 
         // Ejecutar la prueba
-        Reservation createdReservation = reservationService.createReservation(testReservation);
+        Reservation createdReservation = reservationServiceImpl.createReservation(testReservation);
 
         // Validaciones
         assertNotNull(createdReservation);
@@ -79,7 +81,7 @@ public class ReservationServiceTest {
         )).thenReturn(Optional.of(testReservation));
     
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            reservationService.createReservation(testReservation);
+            reservationServiceImpl.createReservation(testReservation);
         });
     
         assertEquals("A reservation for this lab and time slot already exists.", exception.getMessage());
@@ -99,7 +101,7 @@ public class ReservationServiceTest {
         );
 
         // Verificar que se lanza una excepción al intentar guardar una reserva inválida
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> reservationService.createReservation(invalidReservation));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> reservationServiceImpl.createReservation(invalidReservation));
         assertEquals("End time must be after start time.", exception.getMessage());
 
         // Asegurar que no se intenta guardar en el repositorio
@@ -116,7 +118,7 @@ public class ReservationServiceTest {
         });
 
         // Ejecutar el método
-        Reservation result = reservationService.createReservation(testReservation);
+        Reservation result = reservationServiceImpl.createReservation(testReservation);
 
         // Validaciones
         assertNotNull(result);
@@ -137,7 +139,7 @@ public class ReservationServiceTest {
         when(reservationRepository.findByUserId(userId)).thenReturn(Arrays.asList(res1, res2));
 
         // Ejecutar
-        List<Reservation> result = reservationService.getReservationsByUserId(userId);
+        List<Reservation> result = reservationServiceImpl.getReservationsByUserId(userId);
 
         // Verificar
         assertEquals(2, result.size(), "El usuario debería tener 2 reservas");
@@ -151,7 +153,7 @@ public class ReservationServiceTest {
 
         when(reservationRepository.findByUserId(userId)).thenReturn(Collections.emptyList());
 
-        List<Reservation> result = reservationService.getReservationsByUserId(userId);
+        List<Reservation> result = reservationServiceImpl.getReservationsByUserId(userId);
 
         assertTrue(result.isEmpty(), "El usuario no debería tener reservas");
         verify(reservationRepository, times(1)).findByUserId(userId);
@@ -162,7 +164,7 @@ public class ReservationServiceTest {
         when(reservationRepository.findById(testReservation.getId())).thenReturn(Optional.of(testReservation));
         when(reservationRepository.save(testReservation)).thenReturn(testReservation);
 
-        String result = reservationService.updateReservationByReservationId(testReservation.getId());
+        String result = reservationServiceImpl.updateReservationByReservationId(testReservation.getId());
 
         assertEquals("Reservation updated successfully", result);
         assertEquals(ReservationStatus.CANCELED, testReservation.getStatus());
@@ -174,7 +176,7 @@ public class ReservationServiceTest {
         when(reservationRepository.findById("123")).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            reservationService.updateReservationByReservationId("123");
+            reservationServiceImpl.updateReservationByReservationId("123");
         });
 
         assertEquals("Rerservation with id 123 not found.", exception.getMessage());
@@ -186,7 +188,7 @@ public class ReservationServiceTest {
         when(reservationRepository.findById("123")).thenReturn(Optional.of(testReservation));
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            reservationService.updateReservationByReservationId("123");
+            reservationServiceImpl.updateReservationByReservationId("123");
         });
 
         assertEquals("This reservation is already cancelled", exception.getMessage());

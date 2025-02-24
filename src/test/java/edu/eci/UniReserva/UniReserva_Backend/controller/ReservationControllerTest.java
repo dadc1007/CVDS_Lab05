@@ -15,7 +15,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -25,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
-import edu.eci.UniReserva.UniReserva_Backend.service.ReservationService;
+import edu.eci.UniReserva.UniReserva_Backend.service.impl.ReservationServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 public class ReservationControllerTest {
@@ -33,7 +32,7 @@ public class ReservationControllerTest {
     private MockMvc mockMvc;
 
     @Mock
-    private ReservationService reservationService;
+    private ReservationServiceImpl reservationServiceImpl;
 
     @InjectMocks
     private ReservationController reservationController;
@@ -49,7 +48,7 @@ public class ReservationControllerTest {
         Reservation res1 = new Reservation(userId, "lab1", LocalDate.now(), LocalTime.of(10, 0), LocalTime.of(11, 0), 1, false, "Study", null);
         Reservation res2 = new Reservation(userId, "lab2", LocalDate.now().plusDays(1), LocalTime.of(12, 0), LocalTime.of(13, 0), 1, false, "Project", null);
 
-        when(reservationService.getReservationsByUserId(userId)).thenReturn(Arrays.asList(res1, res2));
+        when(reservationServiceImpl.getReservationsByUserId(userId)).thenReturn(Arrays.asList(res1, res2));
 
   
         mockMvc.perform(get("/reservations/user/{userId}", userId)
@@ -59,7 +58,7 @@ public class ReservationControllerTest {
                 .andExpect(jsonPath("$[0].labId").value("lab1"))
                 .andExpect(jsonPath("$[1].labId").value("lab2"));
 
-        verify(reservationService, times(1)).getReservationsByUserId(userId);
+        verify(reservationServiceImpl, times(1)).getReservationsByUserId(userId);
     }
 
 
@@ -67,19 +66,19 @@ public class ReservationControllerTest {
     public void shouldReturnEmptyListForUserWithoutReservations() throws Exception {
         String userId = "user456";
 
-        when(reservationService.getReservationsByUserId(userId)).thenReturn(Collections.emptyList());
+        when(reservationServiceImpl.getReservationsByUserId(userId)).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/reservations/user/{userId}", userId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
 
-        verify(reservationService, times(1)).getReservationsByUserId(userId);
+        verify(reservationServiceImpl, times(1)).getReservationsByUserId(userId);
     }
 
     @Test
     void testUpdateReserve_Success() throws Exception {
-        when(reservationService.updateReservationByReservationId("123"))
+        when(reservationServiceImpl.updateReservationByReservationId("123"))
                 .thenReturn("Reservation updated successfully");
 
         mockMvc.perform(put("/reservations/update/123"))
@@ -89,7 +88,7 @@ public class ReservationControllerTest {
 
     @Test
     void testUpdateReserve_NotFound() throws Exception {
-        when(reservationService.updateReservationByReservationId("123"))
+        when(reservationServiceImpl.updateReservationByReservationId("123"))
                 .thenThrow(new IllegalArgumentException("Reservation with id 123 not found."));
 
         mockMvc.perform(put("/reservations/update/123"))
@@ -99,7 +98,7 @@ public class ReservationControllerTest {
 
     @Test
     void testUpdateReserve_AlreadyCancelled() throws Exception {
-        when(reservationService.updateReservationByReservationId("123"))
+        when(reservationServiceImpl.updateReservationByReservationId("123"))
                 .thenThrow(new IllegalArgumentException("This reservation is already cancelled"));
 
         mockMvc.perform(put("/reservations/update/123"))

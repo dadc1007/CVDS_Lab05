@@ -7,15 +7,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
-import edu.eci.UniReserva.UniReserva_Backend.service.ReservationService;
+import edu.eci.UniReserva.UniReserva_Backend.service.impl.ReservationServiceImpl;
 
 @RestController
 @RequestMapping("/reservations")
 public class ReservationController {
-    private ReservationService reservationService;
+    private ReservationServiceImpl reservationServiceImpl;
 
-    public ReservationController(ReservationService reservationService) {
-        this.reservationService = reservationService;
+    public ReservationController(ReservationServiceImpl reservationServiceImpl) {
+        this.reservationServiceImpl = reservationServiceImpl;
     }
 
     /**
@@ -31,7 +31,7 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<Object> createReservation(@RequestBody Reservation reservation) {
         try {
-            Reservation createdReservation = reservationService.createReservation(reservation);
+            Reservation createdReservation = reservationServiceImpl.createReservation(reservation);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdReservation);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -47,7 +47,7 @@ public class ReservationController {
      */
     @GetMapping("/user/{userId}")
     public List<Reservation> getUserReservations(@PathVariable String userId) {
-        return reservationService.getReservationsByUserId(userId);
+        return reservationServiceImpl.getReservationsByUserId(userId);
     }
 
     /**
@@ -58,7 +58,7 @@ public class ReservationController {
     @PutMapping("/update/{reserveId}")
     public ResponseEntity<String> updateReserve(@PathVariable String reserveId) {
     try{
-        String response = reservationService.updateReservationByReservationId(reserveId);
+        String response = reservationServiceImpl.updateReservationByReservationId(reserveId);
         return ResponseEntity.ok(response);
     }
     catch(IllegalArgumentException e){
