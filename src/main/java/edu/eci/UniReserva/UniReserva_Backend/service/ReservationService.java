@@ -1,14 +1,13 @@
 package edu.eci.UniReserva.UniReserva_Backend.service;
 
-import edu.eci.UniReserva.UniReserva_Backend.repository.ReservationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
 
-@Service
-public class ReservationService {
-    private final ReservationRepository reservationRepository;
+import java.time.LocalTime;
+import java.util.List;
 
-    public ReservationService(ReservationRepository reservationRepository) {
-        this.reservationRepository = reservationRepository;
-    }
+public interface ReservationService {
+    Reservation createReservation(Reservation reservation);
+    public boolean isLabAvailable(String labId, LocalTime startTime, LocalTime endTime);
+    public List<Reservation> getReservationsByUserId(String userId);
+    public String cancelReservationByReservationId(String reservationId);
 }

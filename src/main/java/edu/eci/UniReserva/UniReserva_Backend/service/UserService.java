@@ -1,8 +1,8 @@
 package edu.eci.UniReserva.UniReserva_Backend.service;
 
-import edu.eci.UniReserva.UniReserva_Backend.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import edu.eci.UniReserva.UniReserva_Backend.repository.UserRepository;
 
 @Service
 public class UserService {
@@ -11,4 +11,5 @@ public class UserService {
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+    
 }
