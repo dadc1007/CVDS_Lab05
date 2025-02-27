@@ -43,9 +43,10 @@ class UserServiceImplTest {
         when(userRepository.findByEmail(validUser.getEmail())).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenReturn(validUser);
 
-        String result = userServiceImpl.createUser(validUser);
+        User result = userServiceImpl.createUser(validUser);
 
-        assertEquals("User created successfully!", result);
+        assertNotNull(result);
+        assertEquals(validUser, result);
         verify(userRepository).save(validUser);
     }
 
@@ -72,14 +73,15 @@ class UserServiceImplTest {
         when(userRepository.findById(validUser.getId())).thenReturn(Optional.of(validUser));
         when(userRepository.save(any(User.class))).thenReturn(updateName);
 
-        String result = userServiceImpl.updateUser(validUser.getId(), new User(null, "Alejandro", null, null));
+        User result = userServiceImpl.updateUser(validUser.getId(), new User(null, "Alejandro", null, null));
 
-        assertEquals("User updated successfully!", result);
+        assertNotNull(result);
+        assertEquals(updateName, result);
         verify(userRepository).save(argThat(user ->
                 user.getId().equals(validUser.getId()) &&
-                user.getName().equals("Alejandro") &&
-                user.getEmail().equals(validUser.getEmail()) &&
-                user.getPassword().equals(validUser.getPassword())
+                        user.getName().equals("Alejandro") &&
+                        user.getEmail().equals(validUser.getEmail()) &&
+                        user.getPassword().equals(validUser.getPassword())
         ));
     }
 
@@ -88,14 +90,15 @@ class UserServiceImplTest {
         when(userRepository.findById(validUser.getId())).thenReturn(Optional.of(validUser));
         when(userRepository.save(any(User.class))).thenReturn(updatePassword);
 
-        String result = userServiceImpl.updateUser(validUser.getId(), new User(null, null, null, "NewPassword#123"));
+        User result = userServiceImpl.updateUser(validUser.getId(), new User(null, null, null, "NewPassword#123"));
 
-        assertEquals("User updated successfully!", result);
+        assertNotNull(result);
+        assertEquals(updatePassword, result);
         verify(userRepository).save(argThat(user ->
                 user.getId().equals(validUser.getId()) &&
-                user.getName().equals(validUser.getName()) &&
-                user.getEmail().equals(validUser.getEmail()) &&
-                user.getPassword().equals("NewPassword#123")
+                        user.getName().equals(validUser.getName()) &&
+                        user.getEmail().equals(validUser.getEmail()) &&
+                        user.getPassword().equals("NewPassword#123")
         ));
     }
 

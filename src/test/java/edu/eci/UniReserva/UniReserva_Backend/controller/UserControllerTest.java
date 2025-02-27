@@ -46,12 +46,13 @@ class UserControllerTest {
     void shouldCreateUser() throws Exception {
         String validUserJson = objectMapper.writeValueAsString(validUser);
 
-        when(userServiceImpl.createUser(any(User.class))).thenReturn("User created successfully!");
+        when(userServiceImpl.createUser(any(User.class))).thenReturn(validUser);
 
-        mockMvc.perform(post("/signup").contentType(MediaType.APPLICATION_JSON)
-                .content(validUserJson))
+        mockMvc.perform(post("/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(validUserJson))
                 .andExpect(status().isOk())
-                .andExpect(content().string("User created successfully!"));
+                .andExpect(content().json(validUserJson));
     }
 
     @Test
@@ -80,26 +81,30 @@ class UserControllerTest {
 
     @Test
     public void shouldUpdateName() throws Exception {
+        User updatedUser = new User("1", "Alejandro", "john@example.com", "Password#123");
         String updateNameJson = objectMapper.writeValueAsString(new User(null, "Alejandro", null, null));
 
-        when(userServiceImpl.updateUser(any(String.class), any(User.class))).thenReturn("User updated successfully!");
+        when(userServiceImpl.updateUser(any(String.class), any(User.class))).thenReturn(updatedUser);
 
-        mockMvc.perform(patch("/user/{id}/update", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
-                .content(updateNameJson))
+        mockMvc.perform(patch("/user/{id}/update", validUser.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateNameJson))
                 .andExpect(status().isOk())
-                .andExpect(content().string("User updated successfully!"));
+                .andExpect(content().json(objectMapper.writeValueAsString(updatedUser)));
     }
 
     @Test
     public void shouldUpdatePassword() throws Exception {
+        User updatedUser = new User("1", "John Doe", "john@example.com", "NewPassword#123");
         String updatePasswordJson = objectMapper.writeValueAsString(new User(null, null, null, "NewPassword#123"));
 
-        when(userServiceImpl.updateUser(any(String.class), any(User.class))).thenReturn("User updated successfully!");
+        when(userServiceImpl.updateUser(any(String.class), any(User.class))).thenReturn(updatedUser);
 
-        mockMvc.perform(patch("/user/{id}/update", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
-                .content(updatePasswordJson))
+        mockMvc.perform(patch("/user/{id}/update", validUser.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updatePasswordJson))
                 .andExpect(status().isOk())
-                .andExpect(content().string("User updated successfully!"));
+                .andExpect(content().json(objectMapper.writeValueAsString(updatedUser)));
     }
 
     @Test

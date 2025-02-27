@@ -33,13 +33,11 @@ public class ReservationServiceImpl implements ReservationService {
      */
     @Override
     public Reservation createReservation(Reservation reservation) {
-        if (!reservation.getStartTime().isBefore(reservation.getEndTime())) {
-            throw new IllegalArgumentException("End time must be after start time.");
-        }
+        if (!reservation.getStartTime().isBefore(reservation.getEndTime())) throw new IllegalArgumentException("End time must be after start time.");
+
         
-        if (reservation.getId() != null && reservationRepository.findById(reservation.getId()).isPresent()) {
-            throw new IllegalArgumentException("A reservation with this ID already exists.");
-        }
+        if (reservation.getId() != null && reservationRepository.findById(reservation.getId()).isPresent()) throw new IllegalArgumentException("A reservation with this ID already exists.");
+
         
         if (!isLabAvailable(reservation.getLabId(), reservation.getStartTime(), reservation.getEndTime())) 
             throw new IllegalArgumentException("The lab is not available for the requested time slot.");

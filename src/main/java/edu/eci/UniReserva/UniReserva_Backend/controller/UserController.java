@@ -1,36 +1,41 @@
 package edu.eci.UniReserva.UniReserva_Backend.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import edu.eci.UniReserva.UniReserva_Backend.model.User;
 import edu.eci.UniReserva.UniReserva_Backend.service.UserService;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/user")
 public class UserController {
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    public UserController(UserService userService) { this.userService = userService; }
+
 
     @PostMapping("/signup")
-    public ResponseEntity<String> createUser(@RequestBody User user) {
+    public ResponseEntity<User> createUser(@RequestBody User user) {
         try {
-            String response = userService.createUser(user);
-            return ResponseEntity.ok(response);
+            User createdUser = userService.createUser(user);
+            return ResponseEntity.ok(createdUser);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
-    @PatchMapping("/user/{id}/update")
-    public ResponseEntity<String> updateUser(@RequestBody User user, @PathVariable String id) {
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<User> updateUser(@RequestBody User user, @PathVariable String id) {
         try {
-            String response = userService.updateUser(id, user);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            User updatedUser = userService.updateUser(id, user);
+            return ResponseEntity.ok(updatedUser);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 }

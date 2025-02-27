@@ -16,7 +16,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String createUser(User user) {
+    public User createUser(User user) {
         if (emailExists(user.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
@@ -25,48 +25,48 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Invalid password");
         }
 
-        userRepository.save(user);
-
-        return "User created successfully!";
+        return userRepository.save(user);
     }
 
     @Override
-    public String updateUser(String id, User user) {
+    public User updateUser(String id, User user) {
         Optional<User> userOptional = userRepository.findById(id);
 
         if (!userOptional.isPresent()) {
             throw new IllegalArgumentException("User not found");
         }
 
+        User existingUser = userOptional.get();
+
         if (user.getEmail() != null) {
             throw new IllegalArgumentException("The email cannot be updated");
         }
 
         if (user.getName() != null) {
-            userOptional.get().setName(user.getName());
+            existingUser.setName(user.getName());
         }
 
         if (user.getPassword() != null) {
             if (!validPassword(user.getPassword())) {
                 throw new IllegalArgumentException("Invalid password");
             }
-
-            userOptional.get().setPassword(user.getPassword());
+            existingUser.setPassword(user.getPassword());
         }
 
-        userRepository.save(userOptional.get());
-
-        return "User updated successfully!";
+        return userRepository.save(existingUser);
     }
 
     @Override
-    public String deleteUser(String id) {
-        return "";
+    public void deleteUser(String id) {
+        if (!userRepository.existsById(id)) {
+            throw new IllegalArgumentException("User not found");
+        }
+        userRepository.deleteById(id);
     }
 
     @Override
     public User getUser(String id) {
-        return null;
+        return userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
     private boolean emailExists(String email) {
