@@ -1,20 +1,23 @@
 package edu.eci.UniReserva.UniReserva_Backend.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.eci.UniReserva.UniReserva_Backend.model.User;
-import edu.eci.UniReserva.UniReserva_Backend.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import edu.eci.UniReserva.UniReserva_Backend.model.User;
+import edu.eci.UniReserva.UniReserva_Backend.service.impl.UserServiceImpl;
 
 @WebMvcTest(UserController.class)
 class UserControllerTest {
@@ -48,7 +51,7 @@ class UserControllerTest {
 
         when(userServiceImpl.createUser(any(User.class))).thenReturn(validUser);
 
-        mockMvc.perform(post("/signup")
+        mockMvc.perform(post("/user/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(validUserJson))
                 .andExpect(status().isOk())
@@ -61,7 +64,7 @@ class UserControllerTest {
 
         when(userServiceImpl.createUser(any(User.class))).thenThrow(new IllegalArgumentException("Email already exists"));
 
-        mockMvc.perform(post("/signup").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/user/signup").contentType(MediaType.APPLICATION_JSON)
                 .content(duplicateEmailJson))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Email already exists"));
@@ -73,7 +76,7 @@ class UserControllerTest {
 
         when(userServiceImpl.createUser(any(User.class))).thenThrow(new IllegalArgumentException("Invalid password"));
 
-        mockMvc.perform(post("/signup").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/user/signup").contentType(MediaType.APPLICATION_JSON)
                 .content(invalidPasswordJson))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Invalid password"));
@@ -86,7 +89,7 @@ class UserControllerTest {
 
         when(userServiceImpl.updateUser(any(String.class), any(User.class))).thenReturn(updatedUser);
 
-        mockMvc.perform(patch("/user/{id}/update", validUser.getId())
+        mockMvc.perform(patch("/user/update/{id}", validUser.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateNameJson))
                 .andExpect(status().isOk())
@@ -100,7 +103,7 @@ class UserControllerTest {
 
         when(userServiceImpl.updateUser(any(String.class), any(User.class))).thenReturn(updatedUser);
 
-        mockMvc.perform(patch("/user/{id}/update", validUser.getId())
+        mockMvc.perform(patch("/user/update/{id}", validUser.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updatePasswordJson))
                 .andExpect(status().isOk())
@@ -113,7 +116,7 @@ class UserControllerTest {
 
         when(userServiceImpl.updateUser(any(String.class), any(User.class))).thenThrow(new IllegalArgumentException("Invalid password"));
 
-        mockMvc.perform(patch("/user/{id}/update", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(patch("/user/update/{id}", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
                 .content(invalidPasswordJson))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Invalid password"));
@@ -125,7 +128,7 @@ class UserControllerTest {
 
         when(userServiceImpl.updateUser(any(String.class), any(User.class))).thenThrow(new IllegalArgumentException("The email cannot be updated"));
 
-        mockMvc.perform(patch("/user/{id}/update", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(patch("/user/update/{id}", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
                 .content(invalidEmailJson))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("The email cannot be updated"));
@@ -137,7 +140,7 @@ class UserControllerTest {
 
         when(userServiceImpl.updateUser(any(String.class), any(User.class))).thenThrow(new IllegalArgumentException("User not found"));
 
-        mockMvc.perform(patch("/user/{id}/update", "1111111111").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(patch("/user/update/{id}", "1111111111").contentType(MediaType.APPLICATION_JSON)
                 .content(updateNameJson))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("User not found"));

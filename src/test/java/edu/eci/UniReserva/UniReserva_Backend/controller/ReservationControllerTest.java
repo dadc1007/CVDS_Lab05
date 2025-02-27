@@ -81,7 +81,7 @@ public class ReservationControllerTest {
         when(reservationServiceImpl.cancelReservationByReservationId("123"))
                 .thenReturn("Reservation updated successfully");
 
-        mockMvc.perform(put("/reservations/update/123"))
+        mockMvc.perform(put("/reservations/cancel/123"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Reservation updated successfully"));
     }
@@ -91,7 +91,7 @@ public class ReservationControllerTest {
         when(reservationServiceImpl.cancelReservationByReservationId("123"))
                 .thenThrow(new IllegalArgumentException("Reservation with id 123 not found."));
 
-        mockMvc.perform(put("/reservations/update/123"))
+        mockMvc.perform(put("/reservations/cancel/123"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Reservation with id 123 not found."));
     }
@@ -101,7 +101,7 @@ public class ReservationControllerTest {
         when(reservationServiceImpl.cancelReservationByReservationId("123"))
                 .thenThrow(new IllegalArgumentException("This reservation is already cancelled"));
 
-        mockMvc.perform(put("/reservations/update/123"))
+        mockMvc.perform(put("/reservations/cancel/123"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("This reservation is already cancelled"));
     }
