@@ -55,4 +55,10 @@ public interface ReservationRepository extends MongoRepository<Reservation, Stri
      * Find all reservations for a specific user.
      */
     List<Reservation> findByUserId(String userId);
+
+
+    @Query(value = "{ 'userId' : ?0 }", delete = true)
+    void deleteByUserId(String id);
+
+    boolean existsByUserId(String id);
 }
