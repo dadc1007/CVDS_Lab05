@@ -62,10 +62,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public String deleteUser(String id) {
         if (!userRepository.existsById(id)) {
             throw new IllegalArgumentException("User not found");
+        }
+        if (hasRepository(id)){
+            throw new IllegalArgumentException("User has Repository, can't be deleted");
         }
         userRepository.deleteById(id);
 
@@ -83,5 +85,10 @@ public class UserServiceImpl implements UserService {
 
     private boolean validPassword(String password) {
         return password.matches("^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$");
+    }
+
+    private boolean hasRepository(String id) {
+        User usuario = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return !usuario.getReservations().isEmpty();
     }
 }

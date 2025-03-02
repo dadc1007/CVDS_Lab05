@@ -156,13 +156,22 @@ class UserControllerTest {
     }
 
     @Test
-    public void shouldDeleteUserUserNotFoundReturnsBadRequest() throws Exception {
+    public void shouldNotDeleteUserUserWhenNotFound() throws Exception {
         when(userServiceImpl.deleteUser("999")).thenThrow(new IllegalArgumentException("User not found"));
 
         mockMvc.perform(delete("/user/delete/999"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("User not found"));
     }
+
+    @Test
+    public void shouldNotDeleteUserWhenHasRepository() throws Exception {
+        when(userServiceImpl.deleteUser(validUser.getId())).thenThrow(new IllegalArgumentException("User has Repository, can't be deleted"));
+        mockMvc.perform(delete("/user/delete/1037126548"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("User has Repository, can't be deleted"));
+    }
+
 
 
     @Test
