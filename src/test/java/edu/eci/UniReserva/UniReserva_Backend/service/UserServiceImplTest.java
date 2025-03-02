@@ -148,8 +148,19 @@ class UserServiceImplTest {
     void shouldNotDeleteUserWhenUserDoesNotExist() {
         String userId = "999";
         when(userRepository.existsById(userId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> userServiceImpl.deleteUser(userId));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userServiceImpl.deleteUser(userId));
+        assertEquals("User not found",exception.getMessage() );
         verify(userRepository, never()).deleteById(anyString());
+    }
+
+    @Test
+    void shouldNotDeleteUserWhenHasReservation(){
+        String userId = validUser.getId();
+        validUser.addReservationId("1234567");
+        when(userRepository.existsById(userId)).thenReturn(true);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(validUser));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userServiceImpl.deleteUser(userId));
+        assertEquals("User has Repository, can't be deleted", exception.getMessage());
     }
 
     @Test
@@ -169,4 +180,6 @@ class UserServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
         assertThrows(IllegalArgumentException.class, () -> userServiceImpl.getUser(userId));
     }
+
+
 }
