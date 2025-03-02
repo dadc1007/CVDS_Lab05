@@ -1,7 +1,10 @@
 package edu.eci.UniReserva.UniReserva_Backend.service;
 
+import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
 import edu.eci.UniReserva.UniReserva_Backend.model.User;
+import edu.eci.UniReserva.UniReserva_Backend.repository.ReservationRepository;
 import edu.eci.UniReserva.UniReserva_Backend.repository.UserRepository;
+import edu.eci.UniReserva.UniReserva_Backend.service.impl.ReservationServiceImpl;
 import edu.eci.UniReserva.UniReserva_Backend.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -130,5 +133,40 @@ class UserServiceImplTest {
 
         assertEquals("User not found", exception.getMessage());
         verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void shouldDeleteUserWhenUserExists() {
+        String userId = validUser.getId();
+        when(userRepository.existsById(userId)).thenReturn(true);
+        String result = userServiceImpl.deleteUser(userId);
+        verify(userRepository).deleteById(userId);
+        assertEquals("User with ID 1037126548 deleted successfully", result);
+    }
+
+    @Test
+    void shouldNotDeleteUserWhenUserDoesNotExist() {
+        String userId = "999";
+        when(userRepository.existsById(userId)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> userServiceImpl.deleteUser(userId));
+        verify(userRepository, never()).deleteById(anyString());
+    }
+
+    @Test
+    void shouldGetUserWhenUserExists() {
+        when(userRepository.findById(validUser.getId())).thenReturn(Optional.of(validUser));
+        User result = userServiceImpl.getUser(validUser.getId());
+        assertNotNull(result);
+        assertEquals("1037126548", result.getId());
+        assertEquals("Daniel", result.getName());
+        assertEquals("email@gmail.com",result.getEmail());
+        assertEquals("Password#123",result.getPassword());
+    }
+
+    @Test
+    void shouldNotGetUserWhenUserDoesNotExist() {
+        String userId = "999";
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> userServiceImpl.getUser(userId));
     }
 }

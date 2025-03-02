@@ -7,7 +7,7 @@ public interface UserService {
 
     User updateUser(String id, User user);
 
-    void deleteUser(String id);
+    String deleteUser(String id);
 
     User getUser(String id);
 }

@@ -1,18 +1,23 @@
 package edu.eci.UniReserva.UniReserva_Backend.service.impl;
 
 import edu.eci.UniReserva.UniReserva_Backend.model.User;
+import edu.eci.UniReserva.UniReserva_Backend.repository.LabRepository;
+import edu.eci.UniReserva.UniReserva_Backend.repository.ReservationRepository;
 import edu.eci.UniReserva.UniReserva_Backend.repository.UserRepository;
 import edu.eci.UniReserva.UniReserva_Backend.service.UserService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final ReservationRepository reservationRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, ReservationRepository reservationRepository) {
         this.userRepository = userRepository;
+        this.reservationRepository = reservationRepository;
     }
 
     @Override
@@ -57,11 +62,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(String id) {
+    @Transactional
+    public String deleteUser(String id) {
         if (!userRepository.existsById(id)) {
             throw new IllegalArgumentException("User not found");
         }
         userRepository.deleteById(id);
+
+        return "User with ID " + id + " deleted successfully";
     }
 
     @Override

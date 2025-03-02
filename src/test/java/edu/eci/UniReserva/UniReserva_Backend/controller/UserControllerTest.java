@@ -1,5 +1,6 @@
 package edu.eci.UniReserva.UniReserva_Backend.controller;
 
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
@@ -9,10 +10,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -145,4 +145,47 @@ class UserControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("User not found"));
     }
+
+    @Test
+    public void shouldDeleteUserUserDeletedReturnsOk() throws Exception {
+        when(userServiceImpl.deleteUser("123")).thenReturn("User deleted successfully");
+
+        mockMvc.perform(delete("/user/delete/123"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("User deleted successfully"));
+    }
+
+    @Test
+    public void shouldDeleteUserUserNotFoundReturnsBadRequest() throws Exception {
+        when(userServiceImpl.deleteUser("999")).thenThrow(new IllegalArgumentException("User not found"));
+
+        mockMvc.perform(delete("/user/delete/999"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("User not found"));
+    }
+
+
+    @Test
+    void shouldGetUserByIdUserFound() throws Exception {
+        User user = new User("1234567", "Chente", "chentechaurio@example.com", null);
+
+        when(userServiceImpl.getUser("1234567")).thenReturn(user);
+
+        mockMvc.perform(get("/user/getUser/1234567"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("1234567"))
+                .andExpect(jsonPath("$.name").value("Chente"))
+                .andExpect(jsonPath("$.email").value("chentechaurio@example.com"));
+    }
+
+
+    @Test
+    void shouldNotGetUserWhenIdUserNotFound() throws Exception {
+        when(userServiceImpl.getUser("999")).thenThrow(new IllegalArgumentException("User not found"));
+
+        mockMvc.perform(get("/user/getUser/999"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("User not found"));
+    }
+
 }
