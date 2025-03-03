@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ReservationService {
     Reservation createReservation(Reservation reservation);
-    public boolean isLabAvailable(String labId, LocalTime startTime, LocalTime endTime);
-    public List<Reservation> getReservationsByUserId(String userId);
-    public String cancelReservationByReservationId(String reservationId);
+    boolean isLabAvailable(String labId, LocalTime startTime, LocalTime endTime);
+    List<Reservation> getReservationsByUserId(String userId);
+    String cancelReservationByReservationId(String reservationId);
 }
