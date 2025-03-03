@@ -36,7 +36,6 @@ public class AuthServiceControllerTest {
         String password = "password123";
         String requestBody = "{\"email\":\"" + email + "\", \"password\":\"" + password + "\"}";
         when(authServiceImpl.authenticateLogin(email, password)).thenReturn("Login successful");
-
         mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
@@ -49,8 +48,6 @@ public class AuthServiceControllerTest {
         String email = "test@example.com";
         String password = "wrongpassword";
         String requestBody = "{\"email\":\"" + email + "\", \"password\":\"" + password + "\"}";
-
-        // Simulamos error de autenticación
         when(authServiceImpl.authenticateLogin(any(), any()))
                 .thenThrow(new IllegalArgumentException("Invalid email or password"));
 
