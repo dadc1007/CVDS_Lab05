@@ -88,6 +88,9 @@ public class UserServiceImpl implements UserService {
 
     private boolean hasRepository(String id) {
         User usuario = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return !usuario.getReservations().isEmpty();
+        if(usuario.getReservations() == null){
+            return false;
+        }
+        return !(usuario.getReservations().size()>0);
     }
 }
