@@ -70,7 +70,6 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("User has Repository, can't be deleted");
         }
         userRepository.deleteById(id);
-
         return "User with ID " + id + " deleted successfully";
     }
 

@@ -16,6 +16,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -139,10 +142,13 @@ class UserServiceImplTest {
     void shouldDeleteUserWhenUserExists() {
         String userId = validUser.getId();
         when(userRepository.existsById(userId)).thenReturn(true);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(validUser));
         String result = userServiceImpl.deleteUser(userId);
         verify(userRepository).deleteById(userId);
-        assertEquals("User with ID 1037126548 deleted successfully", result);
+        assertEquals("User with ID " + userId + " deleted successfully", result);
     }
+
+
 
     @Test
     void shouldNotDeleteUserWhenUserDoesNotExist() {
