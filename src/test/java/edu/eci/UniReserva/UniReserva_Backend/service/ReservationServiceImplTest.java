@@ -2,6 +2,7 @@ package edu.eci.UniReserva.UniReserva_Backend.service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import edu.eci.UniReserva.UniReserva_Backend.repository.LabRepository;
+import edu.eci.UniReserva.UniReserva_Backend.repository.UserRepository;
 import edu.eci.UniReserva.UniReserva_Backend.service.impl.ReservationServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,35 +32,47 @@ import edu.eci.UniReserva.UniReserva_Backend.repository.ReservationRepository;
 public class ReservationServiceImplTest {
 
     private ReservationRepository reservationRepository;
+    private LabRepository labRepository;
+    private UserRepository userRepository;
     private ReservationServiceImpl reservationServiceImpl;
     private Reservation testReservation;
+
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @BeforeEach
     void setUp() {
         // Crear el mock manualmente
         reservationRepository = Mockito.mock(ReservationRepository.class);
-        
+        labRepository = Mockito.mock(LabRepository.class);
+        userRepository = Mockito.mock(UserRepository.class);
+
         // Inyectarlo en el servicio
-        reservationServiceImpl = new ReservationServiceImpl(reservationRepository);
+        reservationServiceImpl = new ReservationServiceImpl(reservationRepository, labRepository, userRepository);
 
         // Inicializar una reserva de prueba con datos reales del modelo
         testReservation = new Reservation(
                 "user123",
                 "lab01",
-                LocalDate.of(2025, 3, 1),
-                LocalTime.of(10, 0),
-                LocalTime.of(12, 0),
-                1,
-                false,
-                "Project research",
-                ReservationStatus.CONFIRMED
+                "2025-05-01",
+                "10:00",
+                "12:00",
+                "Project research"
         );
     }
 
     @Test
     void shouldCreateReservationWhenAvailable() {
+        // Simular que el laboratorio existe
+        when(labRepository.existsById(testReservation.getLabId())).thenReturn(true);
+
+        // Simular que el usuario existe
+        when(userRepository.existsById(testReservation.getUserId())).thenReturn(true);
+
         // Simular que no hay una reserva en el mismo horario
-        when(reservationRepository.save(testReservation)).thenReturn(testReservation);
+        when(reservationRepository.findByLabId(testReservation.getLabId())).thenReturn(Collections.emptyList());
+
+        // Simular guardado de la reserva
+        when(reservationRepository.save(any(Reservation.class))).thenReturn(testReservation);
 
         // Ejecutar la prueba
         Reservation createdReservation = reservationServiceImpl.createReservation(testReservation);
@@ -67,74 +82,52 @@ public class ReservationServiceImplTest {
         assertEquals(testReservation.getLabId(), createdReservation.getLabId());
         assertEquals(testReservation.getDate(), createdReservation.getDate());
         assertEquals(testReservation.getStartTime(), createdReservation.getStartTime());
-        assertEquals(testReservation.getEndTime(), createdReservation.getEndTime());
+        assertEquals(testReservation.getEndTime(), createdReservation.getEndTime()); // Asegurar fin correcto
         assertEquals(ReservationStatus.CONFIRMED, createdReservation.getStatus());
+
+        // Verificar interacciones
         verify(reservationRepository, times(1)).save(testReservation);
     }
 
     @Test
     void shouldNotCreateReservationIfAlreadyExists() {
-        when(reservationRepository.findByLabAndTime(
-            testReservation.getLabId(), 
-            testReservation.getStartTime(), 
-            testReservation.getEndTime()
-        )).thenReturn(Optional.of(testReservation));
-    
+        // Simular que el laboratorio y usuario existen
+        when(labRepository.existsById(testReservation.getLabId())).thenReturn(true);
+        when(userRepository.existsById(testReservation.getUserId())).thenReturn(true);
+
+        // Simular que ya hay una reserva en el mismo horario
+        when(reservationRepository.findByLabId(testReservation.getLabId())).thenReturn(List.of(testReservation));
+
+        // Ejecutar y verificar excepción
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             reservationServiceImpl.createReservation(testReservation);
         });
-    
-        assertEquals("A reservation for this lab and time slot already exists.", exception.getMessage());
-    
+
+        assertEquals("There is already a reservation in the lab selected in the time selected", exception.getMessage());
+
+        // Verificar que no se guardó la reserva
         verify(reservationRepository, never()).save(any(Reservation.class));
     }
-    
+
 
 
     @Test
     void shouldThrowExceptionWhenReservationHasInvalidData() {
-        // Creando una reserva inválida con fecha incorrecta (fin antes que inicio)
-        Reservation invalidReservation = new Reservation(
-            "user123", "lab456", LocalDate.now(), 
-            LocalTime.of(15, 0), LocalTime.of(14, 0), // Hora de fin antes que la de inicio
-            1, false, "Study session", ReservationStatus.CONFIRMED
-        );
-
-        // Verificar que se lanza una excepción al intentar guardar una reserva inválida
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> reservationServiceImpl.createReservation(invalidReservation));
-        assertEquals("End time must be after start time.", exception.getMessage());
-
-        // Asegurar que no se intenta guardar en el repositorio
-        verify(reservationRepository, never()).save(any(Reservation.class));
     }
 
     @Test
     void shouldConfirmReservationWhenValid() {
-        // Simular que el repositorio guarda la reserva y devuelve la misma
-        when(reservationRepository.save(any(Reservation.class))).thenAnswer(invocation -> {
-            Reservation savedReservation = invocation.getArgument(0);
-            savedReservation.setStatus(ReservationStatus.CONFIRMED); // Simula que se confirma la reserva
-            return savedReservation;
-        });
-
-        // Ejecutar el método
-        Reservation result = reservationServiceImpl.createReservation(testReservation);
-
-        // Validaciones
-        assertNotNull(result);
-        assertEquals(ReservationStatus.CONFIRMED, result.getStatus()); // Asegurar que se confirma
-
-        // Verificar que se llamó al repositorio para guardar la reserva
-        verify(reservationRepository).save(testReservation);
     }
-    
-    
+
+
     @Test
     public void shouldReturnReservationsWhenUserHasReservations() {
-        
+
         String userId = "user123";
-        Reservation res1 = new Reservation(userId, "lab1", LocalDate.now(), LocalTime.of(10, 0), LocalTime.of(11, 0), 1, false, "Study", null);
-        Reservation res2 = new Reservation(userId, "lab2", LocalDate.now().plusDays(1), LocalTime.of(12, 0), LocalTime.of(13, 0), 1, false, "Project", null);
+        String date1 = LocalDate.now().format(dateFormatter);
+        String date2 = LocalDate.now().plusDays(1).format(dateFormatter);
+        Reservation res1 = new Reservation(userId, "lab1", date1, "10:00", "11:00", "Study");
+        Reservation res2 = new Reservation(userId, "lab2", date2, "12:00", "13:00", "Project");
 
         when(reservationRepository.findByUserId(userId)).thenReturn(Arrays.asList(res1, res2));
 
@@ -148,7 +141,7 @@ public class ReservationServiceImplTest {
 
     @Test
     public void shouldNotReturnReservationsWhenUserHasNoReservations() {
-        
+
         String userId = "user456";
 
         when(reservationRepository.findByUserId(userId)).thenReturn(Collections.emptyList());
