@@ -3,6 +3,7 @@ package edu.eci.UniReserva.UniReserva_Backend.controller;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -37,6 +38,8 @@ public class ReservationControllerTest {
     @InjectMocks
     private ReservationController reservationController;
 
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
     @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(reservationController).build();
@@ -45,12 +48,14 @@ public class ReservationControllerTest {
     @Test
     public void shouldReturnReservationsForUser() throws Exception {
         String userId = "user123";
-        Reservation res1 = new Reservation(userId, "lab1", LocalDate.now(), LocalTime.of(10, 0), LocalTime.of(11, 0), 1, false, "Study", null);
-        Reservation res2 = new Reservation(userId, "lab2", LocalDate.now().plusDays(1), LocalTime.of(12, 0), LocalTime.of(13, 0), 1, false, "Project", null);
+        String date1 = LocalDate.now().format(dateFormatter);
+        String date2 = LocalDate.now().plusDays(1).format(dateFormatter);
+        Reservation res1 = new Reservation(userId, "lab1", date1, "10:00", "11:00", "Study");
+        Reservation res2 = new Reservation(userId, "lab2", date2, "12:00", "13:00", "Project");
 
         when(reservationServiceImpl.getReservationsByUserId(userId)).thenReturn(Arrays.asList(res1, res2));
 
-  
+
         mockMvc.perform(get("/reservations/user/{userId}", userId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

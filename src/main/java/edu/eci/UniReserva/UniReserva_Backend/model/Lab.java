@@ -13,7 +13,7 @@ public class Lab {
     private String id;
     private String name;
     private int capacity;
-    private List<String> reservations;
+    private List<String> reservations = new ArrayList<>();
     private HashMap<String, Integer> equipment;
 
     private static final String LOCATION = "B";
@@ -23,7 +23,6 @@ public class Lab {
     public Lab(String name, int capacity, HashMap<String, Integer> equipment) {
         this.name = name;
         this.capacity = capacity;
-        this.reservations = new ArrayList<>();
         this.equipment = equipment;
     }
 
