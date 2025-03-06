@@ -2,22 +2,26 @@ package edu.eci.UniReserva.UniReserva_Backend.controller;
 
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -43,7 +47,38 @@ public class ReservationControllerTest {
     @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(reservationController).build();
+
     }
+
+    @Test
+    void shouldCreateReservationSuccessfully() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        Reservation testReservation = new Reservation(
+                "user123",
+                "lab01",
+                "2025-05-01",
+                "10:00",
+                "12:00",
+                "Project research"
+        );
+
+
+        when(reservationServiceImpl.createReservation(any(Reservation.class))).thenReturn(testReservation);
+
+        mockMvc.perform(post("/reservations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testReservation)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.userId").value("user123"))
+                .andExpect(jsonPath("$.labId").value("lab01"))
+                .andExpect(jsonPath("$.date").value("2025-05-01"))
+                .andExpect(jsonPath("$.startTime").value("10:00"))
+                .andExpect(jsonPath("$.endTime").value("12:00"))
+                .andExpect(jsonPath("$.purpose").value("Project research"))
+                .andExpect(jsonPath("$.status").value("CONFIRMED"));
+    }
+
 
     @Test
     public void shouldReturnReservationsForUser() throws Exception {
@@ -54,7 +89,6 @@ public class ReservationControllerTest {
         Reservation res2 = new Reservation(userId, "lab2", date2, "12:00", "13:00", "Project");
 
         when(reservationServiceImpl.getReservationsByUserId(userId)).thenReturn(Arrays.asList(res1, res2));
-
 
         mockMvc.perform(get("/reservations/user/{userId}", userId)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -82,17 +116,17 @@ public class ReservationControllerTest {
     }
 
     @Test
-    void testUpdateReserve_Success() throws Exception {
+    void shouldCancelAReservation() throws Exception {
         when(reservationServiceImpl.cancelReservationByReservationId("123"))
-                .thenReturn("Reservation updated successfully");
+                .thenReturn("Reservation canceled successfully");
 
         mockMvc.perform(put("/reservations/cancel/123"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Reservation updated successfully"));
+                .andExpect(content().string("Reservation canceled successfully"));
     }
 
     @Test
-    void testUpdateReserve_NotFound() throws Exception {
+    void shouldNotCancelAReservationWhenItNotExist() throws Exception {
         when(reservationServiceImpl.cancelReservationByReservationId("123"))
                 .thenThrow(new IllegalArgumentException("Reservation with id 123 not found."));
 
@@ -102,7 +136,7 @@ public class ReservationControllerTest {
     }
 
     @Test
-    void testUpdateReserve_AlreadyCancelled() throws Exception {
+    void shouldNotCancelAReservationWhenAlreadyIsCancelled() throws Exception {
         when(reservationServiceImpl.cancelReservationByReservationId("123"))
                 .thenThrow(new IllegalArgumentException("This reservation is already cancelled"));
 

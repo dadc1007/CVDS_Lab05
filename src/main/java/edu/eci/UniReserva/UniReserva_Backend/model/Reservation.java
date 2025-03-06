@@ -1,5 +1,6 @@
 package edu.eci.UniReserva.UniReserva_Backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.eci.UniReserva.UniReserva_Backend.model.enums.ReservationStatus;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,14 +41,17 @@ public class Reservation {
         this.purpose = purpose;
     }
 
+    @JsonIgnore
     public LocalDate getParsedDate() {
         return parseDate(date);
     }
 
+    @JsonIgnore
     public LocalTime getParsedStartTime() {
         return parseTime(startTime);
     }
 
+    @JsonIgnore
     public LocalTime getParsedEndTime() {
         return parseTime(endTime);
     }
