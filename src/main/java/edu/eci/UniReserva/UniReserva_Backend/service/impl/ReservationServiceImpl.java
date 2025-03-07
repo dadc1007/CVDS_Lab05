@@ -99,12 +99,12 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public String  cancelReservationByReservationId(String reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId).orElse(null);
-        if(reservation == null) throw new IllegalArgumentException("Rerservation with id " + reservationId + " not found.");
+        if(reservation == null) throw new IllegalArgumentException("Reservation with id " + reservationId + " not found.");
         if(reservation.getStatus().equals(ReservationStatus.CANCELED)) throw new IllegalArgumentException("This reservation is already cancelled");
 
         reservation.setStatus(ReservationStatus.CANCELED);
         reservationRepository.save(reservation);
-        return "Reservation updated successfully";
+        return "Reservation canceled successfully";
     }
 
     private boolean checkDate(LocalDate date) {
