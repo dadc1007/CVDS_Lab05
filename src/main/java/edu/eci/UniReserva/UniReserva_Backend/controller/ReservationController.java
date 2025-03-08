@@ -4,7 +4,13 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
 import edu.eci.UniReserva.UniReserva_Backend.service.impl.ReservationServiceImpl;
@@ -71,6 +77,17 @@ public class ReservationController {
         return ResponseEntity.badRequest().body(e.getMessage());}
     }
 
-
+    /**
+     * Retrieves a list of reservations for a specific date range.
+     *
+     * @param date1 The start date of the range.
+     * @param date2 The end date of the range.
+     * @return ResponseEntity with status 200 if successful
+     */
+    @GetMapping("/range/{date1}-{date2}")
+    public ResponseEntity<String> getReservationsByRangeDate(@PathVariable String date1, @PathVariable String date2) {
+        String response = reservationServiceImpl.getReservationsByRangeDate(date1, date2);
+        return ResponseEntity.ok(response);
+    }
 
 }
