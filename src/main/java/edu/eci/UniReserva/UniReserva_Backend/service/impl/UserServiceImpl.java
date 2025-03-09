@@ -13,24 +13,9 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final ReservationRepository reservationRepository;
 
-    public UserServiceImpl(UserRepository userRepository, ReservationRepository reservationRepository) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.reservationRepository = reservationRepository;
-    }
-
-    @Override
-    public User createUser(User user) {
-        if (emailExists(user.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
-        }
-
-        if (!validPassword(user.getPassword())) {
-            throw new IllegalArgumentException("Invalid password");
-        }
-
-        return userRepository.save(user);
     }
 
     @Override
@@ -76,10 +61,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUser(String id) {
         return userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
-    }
-
-    private boolean emailExists(String email) {
-        return userRepository.findByEmail(email).isPresent();
     }
 
     private boolean validPassword(String password) {

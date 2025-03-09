@@ -17,17 +17,6 @@ public class UserController {
     }
 
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> createUser(@RequestBody User user) {
-        try {
-            User createdUser = userService.createUser(user);
-            return ResponseEntity.ok(createdUser);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-
     @PatchMapping("/update/{id}")
     public ResponseEntity<?> updateUser(@RequestBody User user, @PathVariable String id) {
         try {

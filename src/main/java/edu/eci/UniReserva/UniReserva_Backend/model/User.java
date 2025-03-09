@@ -13,7 +13,7 @@ public class User {
     private String name;
     private String email;
     private String password;
-    private List<String> reservations;
+    private List<String> reservations = new ArrayList<>();
 
     public User() {}
 
@@ -22,7 +22,6 @@ public class User {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.reservations = new ArrayList<>();
     }
 
     public String getId() {
