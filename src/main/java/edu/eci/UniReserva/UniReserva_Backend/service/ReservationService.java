@@ -7,6 +7,6 @@ import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
 public interface ReservationService {
     Reservation createReservation(Reservation reservation);
     List<Reservation> getReservationsByUserId(String userId);
-    String cancelReservationByReservationId(String reservationId);
+    Reservation cancelReservationByReservationId(String reservationId);
     List<Reservation> getReservationsByRangeDate(String date1, String date2);
 }

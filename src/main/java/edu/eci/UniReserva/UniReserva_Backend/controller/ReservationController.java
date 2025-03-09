@@ -1,6 +1,7 @@
 package edu.eci.UniReserva.UniReserva_Backend.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,13 +63,13 @@ public class ReservationController {
      * @return ResponseEntity with status 200 if successful, 404 if not found, or 400 if already canceled.
      */
     @PutMapping("/cancel/{reservationId}")
-    public ResponseEntity<String> cancelReserve(@PathVariable String reservationId) {
-    try{
-        String response = reservationServiceImpl.cancelReservationByReservationId(reservationId);
-        return ResponseEntity.ok(response);
-    }
-    catch(IllegalArgumentException e){
-        return ResponseEntity.badRequest().body(e.getMessage());}
+    public ResponseEntity<Object> cancelReserve(@PathVariable String reservationId) {
+        try{
+            Reservation reservation = reservationServiceImpl.cancelReservationByReservationId(reservationId);
+            return ResponseEntity.status(HttpStatus.OK).body(reservation);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     /**

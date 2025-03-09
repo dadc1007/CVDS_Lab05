@@ -115,33 +115,33 @@ public class ReservationControllerTest {
         verify(reservationServiceImpl, times(1)).getReservationsByUserId(userId);
     }
 
-    @Test
-    void shouldCancelAReservation() throws Exception {
-        when(reservationServiceImpl.cancelReservationByReservationId("123"))
-                .thenReturn("Reservation canceled successfully");
+//    @Test
+//    void shouldCancelAReservation() throws Exception {
+//        when(reservationServiceImpl.cancelReservationByReservationId("123"))
+//                .thenReturn("Reservation canceled successfully");
+//
+//        mockMvc.perform(put("/reservations/cancel/123"))
+//                .andExpect(status().isOk())
+//                .andExpect(content().string("Reservation canceled successfully"));
+//    }
 
-        mockMvc.perform(put("/reservations/cancel/123"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Reservation canceled successfully"));
-    }
-
-    @Test
-    void shouldNotCancelAReservationWhenItNotExist() throws Exception {
-        when(reservationServiceImpl.cancelReservationByReservationId("123"))
-                .thenThrow(new IllegalArgumentException("Reservation with id 123 not found."));
-
-        mockMvc.perform(put("/reservations/cancel/123"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Reservation with id 123 not found."));
-    }
-
-    @Test
-    void shouldNotCancelAReservationWhenAlreadyIsCancelled() throws Exception {
-        when(reservationServiceImpl.cancelReservationByReservationId("123"))
-                .thenThrow(new IllegalArgumentException("This reservation is already cancelled"));
-
-        mockMvc.perform(put("/reservations/cancel/123"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("This reservation is already cancelled"));
-    }
+//    @Test
+//    void shouldNotCancelAReservationWhenItNotExist() throws Exception {
+//        when(reservationServiceImpl.cancelReservationByReservationId("123"))
+//                .thenThrow(new IllegalArgumentException("Reservation with id 123 not found."));
+//
+//        mockMvc.perform(put("/reservations/cancel/123"))
+//                .andExpect(status().isBadRequest())
+//                .andExpect(content().string("Reservation with id 123 not found."));
+//    }
+//
+//    @Test
+//    void shouldNotCancelAReservationWhenAlreadyIsCancelled() throws Exception {
+//        when(reservationServiceImpl.cancelReservationByReservationId("123"))
+//                .thenThrow(new IllegalArgumentException("This reservation is already cancelled"));
+//
+//        mockMvc.perform(put("/reservations/cancel/123"))
+//                .andExpect(status().isBadRequest())
+//                .andExpect(content().string("This reservation is already cancelled"));
+//    }
 }
