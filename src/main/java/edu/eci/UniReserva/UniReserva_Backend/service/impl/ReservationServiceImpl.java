@@ -107,6 +107,12 @@ public class ReservationServiceImpl implements ReservationService {
         return "Reservation canceled successfully";
     }
 
+    public List<Reservation> getReservationsByRangeDate(String date1, String date2){
+        LocalDate startDate = LocalDate.parse(date1);
+        LocalDate endDate = LocalDate.parse(date2);
+        return reservationRepository.findAll().stream().filter(reservation -> !reservation.getParsedDate().isBefore(startDate) && !reservation.getParsedDate().isAfter(endDate)).collect(Collectors.toList());
+    }
+
     private boolean checkDate(LocalDate date) {
         return !date.isBefore(LocalDate.now());
     }
@@ -150,11 +156,4 @@ public class ReservationServiceImpl implements ReservationService {
             }
         });
     }
-
-    public list<Reservation> getReservationsByRangeDate(String date1, String date2){
-        LocalDate date1 = LocalDate.parse(date1);
-        LocalDate date2 = LocalDate.parse(date2);
-        return reservationRepository.findAll().stream().filter(reservation -> reservation.getParsedDate().isAfter(date1) && reservation.getParsedDate().isBefore(date2)).collect(Collectors.toList());
-    }
-
 }
