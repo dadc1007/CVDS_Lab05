@@ -25,12 +25,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<Object> login(@RequestBody LoginRequest request) {
         try {
-            String message = authService.authenticateLogin(request.getEmail(), request.getPassword());
-            return ResponseEntity.ok(message);
+            User user = authService.authenticateLogin(request.getEmail(), request.getPassword());
+            return ResponseEntity.status(HttpStatus.OK).body(user);
         }catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 

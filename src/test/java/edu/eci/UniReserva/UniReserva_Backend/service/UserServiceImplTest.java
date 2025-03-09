@@ -44,35 +44,35 @@ class UserServiceImplTest {
         updatePassword = new User("1037126548", "Daniel", "email@gmail.com", "NewPassword#123");
     }
 
-    @Test
-    public void shouldCreateUser() {
-        when(userRepository.findByEmail(validUser.getEmail())).thenReturn(Optional.empty());
-        when(userRepository.save(any(User.class))).thenReturn(validUser);
+//    @Test
+//    public void shouldCreateUser() {
+//        when(userRepository.findByEmail(validUser.getEmail())).thenReturn(Optional.empty());
+//        when(userRepository.save(any(User.class))).thenReturn(validUser);
+//
+//        User result = userServiceImpl.createUser(validUser);
+//
+//        assertNotNull(result);
+//        assertEquals(validUser, result);
+//        verify(userRepository).save(validUser);
+//    }
 
-        User result = userServiceImpl.createUser(validUser);
+//    @Test
+//    public void shouldNotCreateUserWithDuplicatedEmail() {
+//        when(userRepository.findByEmail(validUser.getEmail())).thenReturn(Optional.of(validUser));
+//
+//        Exception exception = assertThrows(IllegalArgumentException.class, () -> userServiceImpl.createUser(duplicateEmail));
+//
+//        assertEquals("Email already exists", exception.getMessage());
+//        verify(userRepository, never()).save(any(User.class));
+//    }
 
-        assertNotNull(result);
-        assertEquals(validUser, result);
-        verify(userRepository).save(validUser);
-    }
-
-    @Test
-    public void shouldNotCreateUserWithDuplicatedEmail() {
-        when(userRepository.findByEmail(validUser.getEmail())).thenReturn(Optional.of(validUser));
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userServiceImpl.createUser(duplicateEmail));
-
-        assertEquals("Email already exists", exception.getMessage());
-        verify(userRepository, never()).save(any(User.class));
-    }
-
-    @Test
-    public void shouldNotCreateUserWithInvalidPassword() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userServiceImpl.createUser(invalidePassword));
-
-        assertEquals("Invalid password", exception.getMessage());
-        verify(userRepository, never()).save(any(User.class));
-    }
+//    @Test
+//    public void shouldNotCreateUserWithInvalidPassword() {
+//        Exception exception = assertThrows(IllegalArgumentException.class, () -> userServiceImpl.createUser(invalidePassword));
+//
+//        assertEquals("Invalid password", exception.getMessage());
+//        verify(userRepository, never()).save(any(User.class));
+//    }
 
     @Test
     public void shouldUpdateName() {

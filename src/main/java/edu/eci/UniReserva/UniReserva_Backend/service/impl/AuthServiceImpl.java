@@ -16,12 +16,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String authenticateLogin(String email, String password){
+    public User authenticateLogin(String email, String password){
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null || !user.getPassword().equals(password)) {
             throw new IllegalArgumentException("Invalid email or password");
         }
-        return "Login successful";
+        return user;
     }
 
     @Override

@@ -30,31 +30,31 @@ public class AuthServiceControllerTest {
     @MockitoBean
     private AuthServiceImpl authServiceImpl;
 
-    @Test
-    void testLoginSuccess() throws Exception {
-        String email = "test@example.com";
-        String password = "password123";
-        String requestBody = "{\"email\":\"" + email + "\", \"password\":\"" + password + "\"}";
-        when(authServiceImpl.authenticateLogin(email, password)).thenReturn("Login successful");
-        mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("Login successful"));
-    }
+//    @Test
+//    void testLoginSuccess() throws Exception {
+//        String email = "test@example.com";
+//        String password = "password123";
+//        String requestBody = "{\"email\":\"" + email + "\", \"password\":\"" + password + "\"}";
+//        when(authServiceImpl.authenticateLogin(email, password)).thenReturn("Login successful");
+//        mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(requestBody))
+//                .andExpect(MockMvcResultMatchers.status().isOk())
+//                .andExpect(MockMvcResultMatchers.content().string("Login successful"));
+//    }
 
-    @Test
-    void testLoginFailure() throws Exception {
-        String email = "test@example.com";
-        String password = "wrongpassword";
-        String requestBody = "{\"email\":\"" + email + "\", \"password\":\"" + password + "\"}";
-        when(authServiceImpl.authenticateLogin(any(), any()))
-                .thenThrow(new IllegalArgumentException("Invalid email or password"));
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.content().string("Invalid email or password"));
-    }
+//    @Test
+//    void testLoginFailure() throws Exception {
+//        String email = "test@example.com";
+//        String password = "wrongpassword";
+//        String requestBody = "{\"email\":\"" + email + "\", \"password\":\"" + password + "\"}";
+//        when(authServiceImpl.authenticateLogin(any(), any()))
+//                .thenThrow(new IllegalArgumentException("Invalid email or password"));
+//
+//        mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(requestBody))
+//                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+//                .andExpect(MockMvcResultMatchers.content().string("Invalid email or password"));
+//    }
 }

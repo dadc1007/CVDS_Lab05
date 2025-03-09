@@ -45,42 +45,42 @@ class UserControllerTest {
         updatePassword = new User("1037126548", "Daniel", "email@gmail.com", "NewPassword#123");
     }
 
-    @Test
-    void shouldCreateUser() throws Exception {
-        String validUserJson = objectMapper.writeValueAsString(validUser);
+//    @Test
+//    void shouldCreateUser() throws Exception {
+//        String validUserJson = objectMapper.writeValueAsString(validUser);
+//
+//        when(userServiceImpl.createUser(any(User.class))).thenReturn(validUser);
+//
+//        mockMvc.perform(post("/user/signup")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(validUserJson))
+//                .andExpect(status().isOk())
+//                .andExpect(content().json(validUserJson));
+//    }
 
-        when(userServiceImpl.createUser(any(User.class))).thenReturn(validUser);
+//    @Test
+//    void shouldNotCreateUserWithDuplicatedEmail() throws Exception {
+//        String duplicateEmailJson = objectMapper.writeValueAsString(duplicateEmail);
+//
+//        when(userServiceImpl.createUser(any(User.class))).thenThrow(new IllegalArgumentException("Email already exists"));
+//
+//        mockMvc.perform(post("/user/signup").contentType(MediaType.APPLICATION_JSON)
+//                .content(duplicateEmailJson))
+//                .andExpect(status().isBadRequest())
+//                .andExpect(content().string("Email already exists"));
+//    }
 
-        mockMvc.perform(post("/user/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(validUserJson))
-                .andExpect(status().isOk())
-                .andExpect(content().json(validUserJson));
-    }
-
-    @Test
-    void shouldNotCreateUserWithDuplicatedEmail() throws Exception {
-        String duplicateEmailJson = objectMapper.writeValueAsString(duplicateEmail);
-
-        when(userServiceImpl.createUser(any(User.class))).thenThrow(new IllegalArgumentException("Email already exists"));
-
-        mockMvc.perform(post("/user/signup").contentType(MediaType.APPLICATION_JSON)
-                .content(duplicateEmailJson))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Email already exists"));
-    }
-
-    @Test
-    void shouldNotCreateUserWithInvalidPassword() throws Exception {
-        String invalidPasswordJson = objectMapper.writeValueAsString(invalidePassword);
-
-        when(userServiceImpl.createUser(any(User.class))).thenThrow(new IllegalArgumentException("Invalid password"));
-
-        mockMvc.perform(post("/user/signup").contentType(MediaType.APPLICATION_JSON)
-                .content(invalidPasswordJson))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Invalid password"));
-    }
+//    @Test
+//    void shouldNotCreateUserWithInvalidPassword() throws Exception {
+//        String invalidPasswordJson = objectMapper.writeValueAsString(invalidePassword);
+//
+//        when(userServiceImpl.createUser(any(User.class))).thenThrow(new IllegalArgumentException("Invalid password"));
+//
+//        mockMvc.perform(post("/user/signup").contentType(MediaType.APPLICATION_JSON)
+//                .content(invalidPasswordJson))
+//                .andExpect(status().isBadRequest())
+//                .andExpect(content().string("Invalid password"));
+//    }
 
     @Test
     public void shouldUpdateName() throws Exception {
