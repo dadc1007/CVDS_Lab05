@@ -269,17 +269,18 @@ public class ReservationServiceImplTest {
         verify(reservationRepository, times(1)).findByUserId(userId);
     }
 
-//    @Test
-//    void shouldCancelReservationWhenItExist() {
-//        when(reservationRepository.findById(testReservation.getId())).thenReturn(Optional.of(testReservation));
-//        when(reservationRepository.save(testReservation)).thenReturn(testReservation);
-//
-//        String result = reservationServiceImpl.cancelReservationByReservationId(testReservation.getId());
-//
-//        assertEquals("Reservation canceled successfully", result);
-//        assertEquals(ReservationStatus.CANCELED, testReservation.getStatus());
-//        verify(reservationRepository).save(testReservation);
-//    }
+    @Test
+    void shouldCancelReservationWhenItExist() {
+        when(reservationRepository.findById(testReservation.getId())).thenReturn(Optional.of(testReservation));
+        when(reservationRepository.save(testReservation)).thenReturn(testReservation);
+
+        Reservation result = reservationServiceImpl.cancelReservationByReservationId(testReservation.getId());
+
+        assertNotNull(result);
+        assertEquals(testReservation, result);
+        assertEquals(ReservationStatus.CANCELED, testReservation.getStatus());
+        verify(reservationRepository).save(testReservation);
+    }
 
     @Test
     void shouldNotCancelAReservationWhenItNotExist() {

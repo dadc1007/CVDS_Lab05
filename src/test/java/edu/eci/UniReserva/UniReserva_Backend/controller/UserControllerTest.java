@@ -31,56 +31,13 @@ class UserControllerTest {
     private UserServiceImpl userServiceImpl;
 
     private User validUser;
-    private User duplicateEmail;
-    private User invalidePassword;
-    private User updateName;
-    private User updatePassword;
+
 
     @BeforeEach
     void setUp() {
         validUser = new User("1037126548", "Daniel", "email@gmail.com", "Password#123");
-        duplicateEmail = new User("1038944351", "Carlos", "email@gmail.com", "Password#456");
-        invalidePassword = new User("1038471526", "Vicente", "vicente@gmail.com", "123");
-        updateName = new User("1037126548", "Alejandro", "email@gmail.com", "Password#123");
-        updatePassword = new User("1037126548", "Daniel", "email@gmail.com", "NewPassword#123");
     }
 
-//    @Test
-//    void shouldCreateUser() throws Exception {
-//        String validUserJson = objectMapper.writeValueAsString(validUser);
-//
-//        when(userServiceImpl.createUser(any(User.class))).thenReturn(validUser);
-//
-//        mockMvc.perform(post("/user/signup")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(validUserJson))
-//                .andExpect(status().isOk())
-//                .andExpect(content().json(validUserJson));
-//    }
-
-//    @Test
-//    void shouldNotCreateUserWithDuplicatedEmail() throws Exception {
-//        String duplicateEmailJson = objectMapper.writeValueAsString(duplicateEmail);
-//
-//        when(userServiceImpl.createUser(any(User.class))).thenThrow(new IllegalArgumentException("Email already exists"));
-//
-//        mockMvc.perform(post("/user/signup").contentType(MediaType.APPLICATION_JSON)
-//                .content(duplicateEmailJson))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(content().string("Email already exists"));
-//    }
-
-//    @Test
-//    void shouldNotCreateUserWithInvalidPassword() throws Exception {
-//        String invalidPasswordJson = objectMapper.writeValueAsString(invalidePassword);
-//
-//        when(userServiceImpl.createUser(any(User.class))).thenThrow(new IllegalArgumentException("Invalid password"));
-//
-//        mockMvc.perform(post("/user/signup").contentType(MediaType.APPLICATION_JSON)
-//                .content(invalidPasswordJson))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(content().string("Invalid password"));
-//    }
 
     @Test
     public void shouldUpdateName() throws Exception {
@@ -119,7 +76,7 @@ class UserControllerTest {
         mockMvc.perform(patch("/user/update/{id}", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
                 .content(invalidPasswordJson))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Invalid password"));
+                .andExpect(content().string("{\"error\":\"Invalid password\"}"));
     }
 
     @Test
@@ -131,7 +88,7 @@ class UserControllerTest {
         mockMvc.perform(patch("/user/update/{id}", validUser.getId()).contentType(MediaType.APPLICATION_JSON)
                 .content(invalidEmailJson))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("The email cannot be updated"));
+                .andExpect(content().string("{\"error\":\"The email cannot be updated\"}"));
     }
 
     @Test
@@ -143,7 +100,7 @@ class UserControllerTest {
         mockMvc.perform(patch("/user/update/{id}", "1111111111").contentType(MediaType.APPLICATION_JSON)
                 .content(updateNameJson))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("User not found"));
+                .andExpect(content().string("{\"error\":\"User not found\"}"));
     }
 
     @Test
@@ -151,8 +108,7 @@ class UserControllerTest {
         when(userServiceImpl.deleteUser("123")).thenReturn("User deleted successfully");
 
         mockMvc.perform(delete("/user/delete/123"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("User deleted successfully"));
+                .andExpect(status().isNoContent());
     }
 
     @Test
@@ -160,16 +116,16 @@ class UserControllerTest {
         when(userServiceImpl.deleteUser("999")).thenThrow(new IllegalArgumentException("User not found"));
 
         mockMvc.perform(delete("/user/delete/999"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("User not found"));
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("{\"error\":\"User not found\"}"));
     }
 
     @Test
     public void shouldNotDeleteUserWhenHasRepository() throws Exception {
         when(userServiceImpl.deleteUser(validUser.getId())).thenThrow(new IllegalArgumentException("User has Repository, can't be deleted"));
         mockMvc.perform(delete("/user/delete/1037126548"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("User has Repository, can't be deleted"));
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("{\"error\":\"User has Repository, can't be deleted\"}"));
     }
 
 
@@ -194,7 +150,7 @@ class UserControllerTest {
 
         mockMvc.perform(get("/user/getUser/999"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("User not found"));
+                .andExpect(content().string("{\"error\":\"User not found\"}"));
     }
 
 }
