@@ -35,12 +35,15 @@ public class AuthServiceImplTest {
         invalidUser = new User("1038944351", "Carlos", "invalid@gmail.com", "Password#456");
     }
 
-//    @Test
-//    void testAuthenticateLoginSuccess() {
-//        when(userRepository.findByEmail(validUser.getEmail())).thenReturn(Optional.of(validUser));
-//        String result = authServiceImpl.authenticateLogin(validUser.getEmail(), validUser.getPassword());
-//        assertEquals("Login successful", result);
-//    }
+    @Test
+    void testAuthenticateLoginSuccess() {
+        when(userRepository.findByEmail(validUser.getEmail())).thenReturn(Optional.of(validUser));
+        User result = authServiceImpl.authenticateLogin(validUser.getEmail(), validUser.getPassword());
+        assertEquals("1037126548", result.getId());
+        assertEquals("Daniel", result.getName());
+        assertEquals("email@gmail.com", result.getEmail());
+        assertEquals("Password#123", result.getPassword());
+    }
 
     @Test
     void testAuthenticateLoginUserNotFound() {
