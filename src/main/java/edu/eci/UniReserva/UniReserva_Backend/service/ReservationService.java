@@ -1,13 +1,12 @@
 package edu.eci.UniReserva.UniReserva_Backend.service;
 
-import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
-
-import java.time.LocalTime;
 import java.util.List;
+
+import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
 
 public interface ReservationService {
     Reservation createReservation(Reservation reservation);
-    boolean isLabAvailable(String labId, LocalTime startTime, LocalTime endTime);
     List<Reservation> getReservationsByUserId(String userId);
-    String cancelReservationByReservationId(String reservationId);
+    Reservation cancelReservationByReservationId(String reservationId);
+    List<Reservation> getReservationsByRangeDate(String lab, String date1, String date2);
 }

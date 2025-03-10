@@ -1,13 +1,11 @@
 package edu.eci.UniReserva.UniReserva_Backend.service;
 
+import edu.eci.UniReserva.UniReserva_Backend.model.Lab;
 import edu.eci.UniReserva.UniReserva_Backend.repository.LabRepository;
 import org.springframework.stereotype.Service;
 
-@Service
-public class LabService {
-    private LabRepository labRepository;
+import java.util.List;
 
-    public LabService(LabRepository labRepository) {
-        this.labRepository = labRepository;
-    }
+public interface LabService {
+    List<Lab> getLabs();
 }

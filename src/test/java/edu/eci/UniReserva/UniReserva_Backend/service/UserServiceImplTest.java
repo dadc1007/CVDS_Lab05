@@ -30,48 +30,14 @@ class UserServiceImplTest {
     private UserRepository userRepository;
 
     private User validUser;
-    private User duplicateEmail;
-    private User invalidePassword;
     private User updateName;
     private User updatePassword;
 
     @BeforeEach
     void setUp() {
         validUser = new User("1037126548", "Daniel", "email@gmail.com", "Password#123");
-        duplicateEmail = new User("1038944351", "Carlos", "email@gmail.com", "Password#456");
-        invalidePassword = new User("1038471526", "Vicente", "vicente@gmail.com", "123");
         updateName = new User("1037126548", "Alejandro", "email@gmail.com", "Password#123");
         updatePassword = new User("1037126548", "Daniel", "email@gmail.com", "NewPassword#123");
-    }
-
-    @Test
-    public void shouldCreateUser() {
-        when(userRepository.findByEmail(validUser.getEmail())).thenReturn(Optional.empty());
-        when(userRepository.save(any(User.class))).thenReturn(validUser);
-
-        User result = userServiceImpl.createUser(validUser);
-
-        assertNotNull(result);
-        assertEquals(validUser, result);
-        verify(userRepository).save(validUser);
-    }
-
-    @Test
-    public void shouldNotCreateUserWithDuplicatedEmail() {
-        when(userRepository.findByEmail(validUser.getEmail())).thenReturn(Optional.of(validUser));
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userServiceImpl.createUser(duplicateEmail));
-
-        assertEquals("Email already exists", exception.getMessage());
-        verify(userRepository, never()).save(any(User.class));
-    }
-
-    @Test
-    public void shouldNotCreateUserWithInvalidPassword() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userServiceImpl.createUser(invalidePassword));
-
-        assertEquals("Invalid password", exception.getMessage());
-        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
@@ -186,6 +152,5 @@ class UserServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
         assertThrows(IllegalArgumentException.class, () -> userServiceImpl.getUser(userId));
     }
-
 
 }

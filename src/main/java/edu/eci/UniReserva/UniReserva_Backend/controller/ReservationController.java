@@ -1,6 +1,7 @@
 package edu.eci.UniReserva.UniReserva_Backend.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,15 +63,27 @@ public class ReservationController {
      * @return ResponseEntity with status 200 if successful, 404 if not found, or 400 if already canceled.
      */
     @PutMapping("/cancel/{reservationId}")
-    public ResponseEntity<String> cancelReserve(@PathVariable String reservationId) {
-    try{
-        String response = reservationServiceImpl.cancelReservationByReservationId(reservationId);
+    public ResponseEntity<Object> cancelReserve(@PathVariable String reservationId) {
+        try{
+            Reservation reservation = reservationServiceImpl.cancelReservationByReservationId(reservationId);
+            return ResponseEntity.status(HttpStatus.OK).body(reservation);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Retrieves a list of reservations for a specific date range.
+     *
+     * @param lab The lab to consult.
+     * @param date1 The start date of the range.
+     * @param date2 The end date of the range.
+     * @return ResponseEntity with status 200 if successful
+     */
+    @GetMapping("/range")
+    public ResponseEntity<List<Reservation>> getReservationsByRangeDate(@RequestParam String lab, @RequestParam String date1, @RequestParam String date2) {
+        List<Reservation> response = reservationServiceImpl.getReservationsByRangeDate(lab, date1, date2);
         return ResponseEntity.ok(response);
     }
-    catch(IllegalArgumentException e){
-        return ResponseEntity.badRequest().body(e.getMessage());}
-    }
-
-
 
 }

@@ -16,12 +16,33 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String authenticateLogin(String email, String password){
+    public User authenticateLogin(String email, String password){
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null || !user.getPassword().equals(password)) {
             throw new IllegalArgumentException("Invalid email or password");
         }
-        return "Login successful";
+        return user;
+    }
+
+    @Override
+    public User authenticateSignUp(User user) {
+        if (emailExists(user.getEmail())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+
+        if (!validPassword(user.getPassword())) {
+            throw new IllegalArgumentException("Invalid password");
+        }
+
+        return userRepository.save(user);
+    }
+
+    private boolean emailExists(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+    private boolean validPassword(String password) {
+        return password.matches("^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$");
     }
 
 }
