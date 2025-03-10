@@ -16,6 +16,10 @@ jobs:
       contents: read #This is required for actions/checkout
 
     steps:
+      - name: Environment Variables
+        run: |
+          echo "DATA_BASE_URL=${{ secrets.DATA_BASE_URL }}" >> $GITHUB_ENV
+          echo "DATA_BASE_NAME=${{ secrets.DATA_BASE_NAME }}" >> $GITHUB_ENV
       - uses: actions/checkout@v4
 
       - name: Set up Java version
