@@ -1,4 +1,5 @@
 package edu.eci.UniReserva.UniReserva_Backend.service.impl;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Comparator;
@@ -20,7 +21,8 @@ public class ReservationServiceImpl implements ReservationService {
     private final LabRepository labRepository;
     private final UserRepository userRepository;
 
-    public ReservationServiceImpl(ReservationRepository reservationRepository, LabRepository labRepository, UserRepository userRepository) {
+    public ReservationServiceImpl(ReservationRepository reservationRepository, LabRepository labRepository,
+            UserRepository userRepository) {
         this.reservationRepository = reservationRepository;
         this.labRepository = labRepository;
         this.userRepository = userRepository;
@@ -32,9 +34,10 @@ public class ReservationServiceImpl implements ReservationService {
      * @param reservation Object containing the reservation details.
      * @return The created reservation stored in the database.
      * 
-     * Possible scenarios:
-     * - The reservation is successfully stored if the lab is available.
-     * - An exception is thrown if the lab is already booked for the requested time slot.
+     *         Possible scenarios:
+     *         - The reservation is successfully stored if the lab is available.
+     *         - An exception is thrown if the lab is already booked for the
+     *         requested time slot.
      */
     @Override
     public Reservation createReservation(Reservation reservation) {
@@ -47,7 +50,8 @@ public class ReservationServiceImpl implements ReservationService {
         }
 
         if (!checkStartTime(reservation.getParsedStartTime(), reservation.getParsedDate())) {
-            throw new IllegalArgumentException("The start time must be in the future. You cannot create a reservation with a past time");
+            throw new IllegalArgumentException(
+                    "The start time must be in the future. You cannot create a reservation with a past time");
         }
 
         if (!checkDate(reservation.getParsedDate())) {
@@ -55,7 +59,8 @@ public class ReservationServiceImpl implements ReservationService {
         }
 
         if (!isAvailable(reservation)) {
-            throw new IllegalArgumentException("There is already a reservation in the lab selected in the time selected");
+            throw new IllegalArgumentException(
+                    "There is already a reservation in the lab selected in the time selected");
         }
 
         Reservation savedReservation = reservationRepository.save(reservation);
@@ -67,10 +72,13 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     /**
-     * Retrieves a list of reservations for a specific user, sorted by date and start time.
+     * Retrieves a list of reservations for a specific user, sorted by date and
+     * start time.
      *
-     * @param userId the unique identifier of the user whose reservations are being fetched
-     * @return a list of {@link Reservation} objects belonging to the specified user,
+     * @param userId the unique identifier of the user whose reservations are being
+     *               fetched
+     * @return a list of {@link Reservation} objects belonging to the specified
+     *         user,
      *         sorted in ascending order by date and then by start time
      */
     @Override
@@ -94,22 +102,27 @@ public class ReservationServiceImpl implements ReservationService {
      *
      * @param reservationId ID of the reservation to cancel.
      * @throws IllegalArgumentException if the reservation does not exist.
-     * @throws IllegalStateException if the reservation is already cancelled.
+     * @throws IllegalStateException    if the reservation is already cancelled.
      */
     @Override
-    public Reservation  cancelReservationByReservationId(String reservationId) {
+    public Reservation cancelReservationByReservationId(String reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId).orElse(null);
-        if(reservation == null) throw new IllegalArgumentException("Reservation with id " + reservationId + " not found.");
-        if(reservation.getStatus().equals(ReservationStatus.CANCELED)) throw new IllegalArgumentException("This reservation is already cancelled");
+        if (reservation == null)
+            throw new IllegalArgumentException("Reservation with id " + reservationId + " not found.");
+        if (reservation.getStatus().equals(ReservationStatus.CANCELED))
+            throw new IllegalArgumentException("This reservation is already cancelled");
 
         reservation.setStatus(ReservationStatus.CANCELED);
         return reservationRepository.save(reservation);
     }
 
-    public List<Reservation> getReservationsByRangeDate(String lab, String date1, String date2){
+    public List<Reservation> getReservationsByRangeDate(String lab, String date1, String date2) {
         LocalDate startDate = LocalDate.parse(date1);
         LocalDate endDate = LocalDate.parse(date2);
-        return reservationRepository.findAll().stream().filter(reservation -> !reservation.getParsedDate().isBefore(startDate) && !reservation.getParsedDate().isAfter(endDate) && lab.equals(reservation.getLabId())).collect(Collectors.toList());
+        return reservationRepository.findAll().stream()
+                .filter(reservation -> !reservation.getParsedDate().isBefore(startDate)
+                        && !reservation.getParsedDate().isAfter(endDate) && lab.equals(reservation.getLabId()))
+                .collect(Collectors.toList());
     }
 
     private boolean checkDate(LocalDate date) {
@@ -123,12 +136,14 @@ public class ReservationServiceImpl implements ReservationService {
     private boolean isAvailable(Reservation reservation) {
         List<Reservation> reservations = reservationRepository.findByLabId(reservation.getLabId());
 
-        if (reservations.isEmpty()) return true;
+        if (reservations.isEmpty())
+            return true;
 
         for (Reservation r : reservations) {
             if (reservation.getParsedDate().equals(r.getParsedDate())) {
                 if (r.getStatus().equals(ReservationStatus.CONFIRMED)) {
-                    if (reservation.getParsedStartTime().isBefore(r.getParsedEndTime()) && reservation.getParsedEndTime().isAfter(r.getParsedStartTime())) {
+                    if (reservation.getParsedStartTime().isBefore(r.getParsedEndTime())
+                            && reservation.getParsedEndTime().isAfter(r.getParsedStartTime())) {
                         return false;
                     }
                 }
