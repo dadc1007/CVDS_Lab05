@@ -25,12 +25,30 @@ El proyecto consiste en una aplicación para la gestión de reservas de salones 
 
 ## SPRINTS
 Sprint 1: Configuración General del Proyecto
+
+![Text](assets/1.png)
+
   - Configuración de ambientes (backend y frontend).
+
+  ![Text](assets/5.png)
+
   - Scaffolding del proyecto.
+
+  ![Text](assets/6.png)
+  ![Text](assets/2.png)
+
   - Configuración de la base de datos (MongoDB Cloud o archivo de texto plano).
+
+  ![Text](assets/3.jpg)
+
   - Definición del modelo de datos (salones y reservas).
 
+  ![Text](assets/4.jpg)
+
 Sprint 2: Implementación del API REST
+
   - Crear los endpoints necesarios para consultar laboratorios, realizar reservas y cancelar reservas.
+
   - Implementar la lógica de validación para evitar reservas conflictivas.
+
   - Configurar la persistencia de datos en MongoDB Cloud o archivo de texto plano.
