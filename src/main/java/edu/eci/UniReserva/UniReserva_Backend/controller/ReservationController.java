@@ -75,13 +75,14 @@ public class ReservationController {
     /**
      * Retrieves a list of reservations for a specific date range.
      *
+     * @param lab The lab to consult.
      * @param date1 The start date of the range.
      * @param date2 The end date of the range.
      * @return ResponseEntity with status 200 if successful
      */
     @GetMapping("/range")
-    public ResponseEntity<List<Reservation>> getReservationsByRangeDate(@RequestParam String date1, @RequestParam String date2) {
-        List<Reservation> response = reservationServiceImpl.getReservationsByRangeDate(date1, date2);
+    public ResponseEntity<List<Reservation>> getReservationsByRangeDate(@RequestParam String lab, @RequestParam String date1, @RequestParam String date2) {
+        List<Reservation> response = reservationServiceImpl.getReservationsByRangeDate(lab, date1, date2);
         return ResponseEntity.ok(response);
     }
 

@@ -106,10 +106,10 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    public List<Reservation> getReservationsByRangeDate(String date1, String date2){
+    public List<Reservation> getReservationsByRangeDate(String lab, String date1, String date2){
         LocalDate startDate = LocalDate.parse(date1);
         LocalDate endDate = LocalDate.parse(date2);
-        return reservationRepository.findAll().stream().filter(reservation -> !reservation.getParsedDate().isBefore(startDate) && !reservation.getParsedDate().isAfter(endDate)).collect(Collectors.toList());
+        return reservationRepository.findAll().stream().filter(reservation -> !reservation.getParsedDate().isBefore(startDate) && !reservation.getParsedDate().isAfter(endDate) && lab.equals(reservation.getLabId())).collect(Collectors.toList());
     }
 
     private boolean checkDate(LocalDate date) {
