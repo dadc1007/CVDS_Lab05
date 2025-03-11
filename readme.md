@@ -1,4 +1,5 @@
-# LABORATORIO 4 - Scrum - DI/IOC
+# LABORATORIO 5 - CI/CD
+
 ESCUELA COLOMBIANA DE INGENIERÍA - CICLOS DE VIDA DE DESARROLLO DE SOFTWARE
 
 ---
@@ -12,43 +13,85 @@ ESCUELA COLOMBIANA DE INGENIERÍA - CICLOS DE VIDA DE DESARROLLO DE SOFTWARE
 
 ---
 
-## CASO DE NEGOCIO - SISTEMA DE RESERVAS DE SALONES PARA LA UNIVERSIDAD ESCUELA COLOMBIANA DE INGENIERÍA JULIO GARAVITO.
+## DEVOPS / CI-CD
 
-El proyecto consiste en una aplicación para la gestión de reservas de salones dentro de la Escuela Colombiana de Ingeniería Julio Garavito. Los usuarios podrán consultar la disponibilidad de salones, realizar reservas y cancelar sus reservas desde una interfaz web. La aplicación se conectará a un API REST desarrollado en Spring Boot. El backend permitirá la inyección de dependencias para el manejo de datos, pudiendo optar entre una base de datos en MongoDB Cloud o un archivo de texto plano para almacenar las reservas.
+1.  Clonamos nuestro repositorio usado en el laboratorio 4
+
+<p align="center">
+  <img src="assets/repo_clone.png" alt="Clonando repositorio" width="600">
+</p>
 
 ---
 
-## ÉPICAS
-1. Backend: Implementar un API REST para el manejo de la lógica de negocio y persistencia de datos.
+2. Luego de crear una cuenta gratuita en Azure, nos dirigimos a **App Services** > **Crear** > **Aplicación web** y creamos un "App Service"
+
+<p align="center">
+  <img src="assets/app_service1.png" alt="Creación de App Service" width="600">
+</p>
+
+<p align="center">
+  <img src="assets/app_service2.png" alt="Configuración de App Service" width="600">
+</p>
+
+<p align="center">
+  <img src="assets/app_service3.png" alt="Finalización de App Service" width="600">
+</p>
 
 ---
 
-## SPRINTS
-Sprint 1: Configuración General del Proyecto
+3. Luego de haber creado nuestra app service, nos dirigimos a **Ir al recurso** > **Implementación** > **Centro de implementación** y agregamos el repositorio
 
-![Text](assets/1.png)
+<p align="center">
+  <img src="assets/add_repo.png" alt="Agregando repositorio en Azure" width="600">
+</p>
 
-  - Configuración de ambientes (backend y frontend).
+---
 
-  ![Text](assets/5.png)
+4. Cuando agregamos el repositorio, Azure automaticamente genera el **Workflow file** el cual se ejecuta automáticamente, pero saldra error ya que debemos configurar las variables de entorno
 
-  - Scaffolding del proyecto.
+<p align="center">
+  <img src="assets/workflow_error.png" alt="Error en Workflow por falta de variables de entorno" width="600">
+</p>
 
-  ![Text](assets/6.png)
-  ![Text](assets/2.png)
+---
 
-  - Configuración de la base de datos (MongoDB Cloud o archivo de texto plano).
+5. En el repositorio, nos dirigimos a **Settings** > **Secrets and variables** > **Actions** > **Secrets** > **New repository secret** y agregamos las variables de entorno requeridas, en nuestro caso `DATA_BASE_NAME` y `DATA_BASE_NAME`
 
-  ![Text](assets/3.jpg)
+<p align="center">
+  <img src="assets/var_env_git.png" alt="Configurando variables de entorno en GitHub" width="600">
+</p>
 
-  - Definición del modelo de datos (salones y reservas).
+---
 
-  ![Text](assets/4.jpg)
+6. En Azure, nos dirigimos a **Configuración** > **Variables de entorno** > **Agregar** y agregamos las variables de entorno requeridas, en nuestro caso `DATA_BASE_NAME` y `DATA_BASE_NAME`
 
-Sprint 2: Implementación del API REST
+<p align="center">
+  <img src="assets/var_env_azure.png" alt="Configurando variables de entorno en Azure" width="600">
+</p>
 
-  - Crear los endpoints necesarios para consultar laboratorios, realizar reservas y cancelar reservas.
+---
 
-  - Implementar la lógica de validación para evitar reservas conflictivas.
+6. Luego de agregar las variables de entorno en git y Azure, configuramos nuestro "Workflow file" agregando las variables de entorno en **jobs** > **steps**
 
-  - Configurar la persistencia de datos en MongoDB Cloud o archivo de texto plano.
+```shell
+- name: Environment Variables
+        run: |
+          echo "DATA_BASE_URL=${{ secrets.DATA_BASE_URL }}" >> $GITHUB_ENV
+          echo "DATA_BASE_NAME=${{ secrets.DATA_BASE_NAME }}" >> $GITHUB_ENV
+```
+
+---
+
+7. Luego de modificar nuestro "Workflow file", ejecutamos de nuevo
+
+<p align="center">
+  <img src="assets/workflow_success.png" alt="Workflow ejecutado correctamente" width="600">
+</p>
+
+---
+
+8. Para probar, nos dirigimos a **App Services** > **[nombre_de_tu_servicio]** y hacemos nuestras consultas al link que obtenemos en **Dominio predeterminado**, en nuestro caso `unireserva-haa2a4e3aueeeqes.brazilsouth-01.azurewebsites.net`
+
+<p align="center">
+  <img src="assets/test.png" alt="Probando el despliegue en Azure" width="600">
+</p>
