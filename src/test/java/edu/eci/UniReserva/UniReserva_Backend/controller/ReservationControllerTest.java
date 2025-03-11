@@ -58,7 +58,8 @@ public class ReservationControllerTest {
                 "2025-05-01",
                 "10:00",
                 "12:00",
-                "Project research"
+                "Project research",
+                1
         );
         objectMapper = new ObjectMapper();
     }
@@ -88,8 +89,8 @@ public class ReservationControllerTest {
         String userId = "user123";
         String date1 = LocalDate.now().format(dateFormatter);
         String date2 = LocalDate.now().plusDays(1).format(dateFormatter);
-        Reservation res1 = new Reservation(userId, "lab1", date1, "10:00", "11:00", "Study");
-        Reservation res2 = new Reservation(userId, "lab2", date2, "12:00", "13:00", "Project");
+        Reservation res1 = new Reservation(userId, "lab1", date1, "10:00", "11:00", "Study", 1);
+        Reservation res2 = new Reservation(userId, "lab2", date2, "12:00", "13:00", "Project", 1);
 
         when(reservationServiceImpl.getReservationsByUserId(userId)).thenReturn(Arrays.asList(res1, res2));
 

@@ -63,6 +63,10 @@ public class ReservationServiceImpl implements ReservationService {
                     "There is already a reservation in the lab selected in the time selected");
         }
 
+        if (!validatePriority(reservation.getPriority())) {
+            throw new IllegalArgumentException("The priority must be in the range 1-5");
+        }
+
         Reservation savedReservation = reservationRepository.save(reservation);
 
         addReservationToLab(reservation);
@@ -169,5 +173,9 @@ public class ReservationServiceImpl implements ReservationService {
                 userRepository.save(user);
             }
         });
+    }
+
+    private boolean validatePriority(int priority) {
+        return priority >= 1 && priority <= 5;
     }
 }

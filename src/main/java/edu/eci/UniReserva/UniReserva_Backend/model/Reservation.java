@@ -24,6 +24,7 @@ public class Reservation {
     private String endTime;
     private String purpose;
     private ReservationStatus status = ReservationStatus.CONFIRMED;
+    private int priority;
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -32,13 +33,14 @@ public class Reservation {
     public Reservation() {
     }
 
-    public Reservation(String userId, String labId, String date, String startTime, String endTime, String purpose) {
+    public Reservation(String userId, String labId, String date, String startTime, String endTime, String purpose, int priority) {
         this.userId = userId;
         this.labId = labId;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
         this.purpose = purpose;
+        this.priority = priority;
     }
 
     @JsonIgnore
