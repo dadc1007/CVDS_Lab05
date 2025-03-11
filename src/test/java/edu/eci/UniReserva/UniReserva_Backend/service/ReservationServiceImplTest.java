@@ -55,7 +55,8 @@ public class ReservationServiceImplTest {
                 "2025-05-01",
                 "10:00",
                 "12:00",
-                "Project research"
+                "Project research",
+                1
         );
     }
 
@@ -65,7 +66,7 @@ public class ReservationServiceImplTest {
         when(userRepository.existsById(testReservation.getUserId())).thenReturn(true);
         when(reservationRepository.save(any(Reservation.class))).thenReturn(testReservation);
 
-        Reservation createdReservation = reservationServiceImpl.createReservation(new Reservation("user123", "lab01", "2025-05-01", "10:00", "12:00", "Project research"));
+        Reservation createdReservation = reservationServiceImpl.createReservation(new Reservation("user123", "lab01", "2025-05-01", "10:00", "12:00", "Project research", 1));
 
         assertNotNull(createdReservation);
         assertEquals(testReservation.getLabId(), createdReservation.getLabId());
@@ -101,7 +102,8 @@ public class ReservationServiceImplTest {
                 testReservation.getDate(),
                 testReservation.getStartTime(),
                 testReservation.getEndTime(),
-                "Second reservation"
+                "Second reservation",
+                1
         );
 
         when(reservationRepository.save(any(Reservation.class))).thenReturn(secondReservation);
@@ -137,7 +139,8 @@ public class ReservationServiceImplTest {
                 testReservation.getDate(),
                 testReservation.getStartTime(),
                 testReservation.getEndTime(),
-                "Rebooking after cancellation"
+                "Rebooking after cancellation",
+                testReservation.getPriority()
         );
 
         when(reservationRepository.save(any(Reservation.class))).thenReturn(newReservation);
@@ -195,7 +198,8 @@ public class ReservationServiceImplTest {
                 LocalDate.now().toString(),
                 pastTime.format(timeFormatter),
                 LocalTime.now().plusHours(1).format(timeFormatter),
-                "Past reservation"
+                "Past reservation",
+                1
         );
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -215,7 +219,8 @@ public class ReservationServiceImplTest {
                 LocalDate.now().minusDays(1).toString(), // Fecha en el pasado
                 "10:00",
                 "12:00",
-                "Past date reservation"
+                "Past date reservation",
+                1
         );
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -240,14 +245,30 @@ public class ReservationServiceImplTest {
         verify(reservationRepository, never()).save(any(Reservation.class));
     }
 
+    @Test
+    void shouldNotCreateReservationIfPriorityIsInvalid() {
+        testReservation.setPriority(0);
+
+        when(labRepository.existsById(testReservation.getLabId())).thenReturn(true);
+        when(userRepository.existsById(testReservation.getUserId())).thenReturn(true);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            reservationServiceImpl.createReservation(testReservation);
+        });
+
+        assertEquals("The priority must be in the range 1-5", exception.getMessage());
+
+        verify(reservationRepository, never()).save(any(Reservation.class));
+    }
+
 
     @Test
     public void shouldReturnReservationsWhenUserHasReservations() {
         String userId = "user123";
         String date1 = LocalDate.now().format(dateFormatter);
         String date2 = LocalDate.now().plusDays(1).format(dateFormatter);
-        Reservation res1 = new Reservation(userId, "lab1", date1, "10:00", "11:00", "Study");
-        Reservation res2 = new Reservation(userId, "lab2", date2, "12:00", "13:00", "Project");
+        Reservation res1 = new Reservation(userId, "lab1", date1, "10:00", "11:00", "Study", 1);
+        Reservation res2 = new Reservation(userId, "lab2", date2, "12:00", "13:00", "Project", 1);
 
         when(reservationRepository.findByUserId(userId)).thenReturn(Arrays.asList(res1, res2));
 
