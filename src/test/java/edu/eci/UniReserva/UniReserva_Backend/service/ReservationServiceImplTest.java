@@ -190,14 +190,16 @@ public class ReservationServiceImplTest {
         when(userRepository.existsById(testReservation.getUserId())).thenReturn(true);
 
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-        LocalTime pastTime = LocalTime.now().minusHours(1);
+
+        LocalTime pastTime = LocalTime.now().minusHours(6);
+        LocalTime futureTime = LocalTime.now().plusHours(1);
 
         Reservation pastReservation = new Reservation(
                 "user123",
                 "lab01",
                 LocalDate.now().toString(),
                 pastTime.format(timeFormatter),
-                LocalTime.now().plusHours(1).format(timeFormatter),
+                futureTime.format(timeFormatter),
                 "Past reservation",
                 1
         );
