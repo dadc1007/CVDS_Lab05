@@ -1,9 +1,9 @@
 package edu.eci.UniReserva.UniReserva_Backend.service;
 
-import edu.eci.UniReserva.UniReserva_Backend.model.User;
+import edu.eci.UniReserva.UniReserva_Backend.model.dto.*;
 
 public interface AuthService {
-    User authenticateLogin(String username, String password);
+  ApiResponse<UserDto> authenticateLogin(LoginUserDto request);
 
-    User authenticateSignUp(User user);
+  ApiResponse<UserDto> authenticateSignUp(RegisterUserDto request);
 }

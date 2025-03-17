@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import edu.eci.UniReserva.UniReserva_Backend.model.dto.ApiResponse;
 import edu.eci.UniReserva.UniReserva_Backend.repository.LabRepository;
 import edu.eci.UniReserva.UniReserva_Backend.repository.UserRepository;
 import edu.eci.UniReserva.UniReserva_Backend.service.impl.ReservationServiceImpl;
@@ -66,8 +67,10 @@ public class ReservationServiceImplTest {
         when(userRepository.existsById(testReservation.getUserId())).thenReturn(true);
         when(reservationRepository.save(any(Reservation.class))).thenReturn(testReservation);
 
-        Reservation createdReservation = reservationServiceImpl.createReservation(new Reservation("user123", "lab01", "2025-05-01", "10:00", "12:00", "Project research", 1));
-
+        ApiResponse<Reservation> response = reservationServiceImpl.createReservation(new Reservation("user123", "lab01", "2025-05-01", "10:00", "12:00", "Project research", 1));
+        assertNotNull(response);
+        assertNotNull(response.getData());
+        Reservation createdReservation = response.getData();
         assertNotNull(createdReservation);
         assertEquals(testReservation.getLabId(), createdReservation.getLabId());
         assertEquals(testReservation.getDate(), createdReservation.getDate());
@@ -108,7 +111,10 @@ public class ReservationServiceImplTest {
 
         when(reservationRepository.save(any(Reservation.class))).thenReturn(secondReservation);
 
-        Reservation savedSecondReservation = reservationServiceImpl.createReservation(secondReservation);
+        ApiResponse<Reservation> response = reservationServiceImpl.createReservation(secondReservation);
+        assertNotNull(response);
+        assertNotNull(response.getData());
+        Reservation savedSecondReservation = response.getData();
         assertNotNull(savedSecondReservation);
 
         ArgumentCaptor<Reservation> reservationCaptor = ArgumentCaptor.forClass(Reservation.class);
@@ -145,7 +151,10 @@ public class ReservationServiceImplTest {
 
         when(reservationRepository.save(any(Reservation.class))).thenReturn(newReservation);
 
-        Reservation savedReservation = reservationServiceImpl.createReservation(newReservation);
+        ApiResponse<Reservation> response = reservationServiceImpl.createReservation(newReservation);
+        assertNotNull(response);
+        assertNotNull(response.getData());
+        Reservation savedReservation = response.getData();
 
         assertNotNull(savedReservation);
 
@@ -271,22 +280,28 @@ public class ReservationServiceImplTest {
         Reservation res2 = new Reservation(userId, "lab2", date2, "12:00", "13:00", "Project", 1);
 
         when(reservationRepository.findByUserId(userId)).thenReturn(Arrays.asList(res1, res2));
+        when(userRepository.existsById(userId)).thenReturn(true);
 
-        List<Reservation> result = reservationServiceImpl.getReservationsByUserId(userId);
+        ApiResponse<List<Reservation>> response = reservationServiceImpl.getReservationsByUserId(userId);
+        assertNotNull(response);
+        assertNotNull(response.getData());
 
-        assertEquals(2, result.size(), "El usuario debería tener 2 reservas");
+        assertEquals(2, response.getData().size(), "El usuario debería tener 2 reservas");
         verify(reservationRepository, times(1)).findByUserId(userId);
     }
 
     @Test
     public void shouldNotReturnReservationsWhenUserHasNoReservations() {
         String userId = "user456";
-
+        when(userRepository.existsById(userId)).thenReturn(true);
         when(reservationRepository.findByUserId(userId)).thenReturn(Collections.emptyList());
 
-        List<Reservation> result = reservationServiceImpl.getReservationsByUserId(userId);
 
-        assertTrue(result.isEmpty(), "El usuario no debería tener reservas");
+        ApiResponse<List<Reservation>> response = reservationServiceImpl.getReservationsByUserId(userId);
+        assertNotNull(response);
+        assertNotNull(response.getData());
+
+        assertTrue(response.getData().isEmpty(), "El usuario no debería tener reservas");
         verify(reservationRepository, times(1)).findByUserId(userId);
     }
 
@@ -294,11 +309,11 @@ public class ReservationServiceImplTest {
     void shouldCancelReservationWhenItExist() {
         when(reservationRepository.findById(testReservation.getId())).thenReturn(Optional.of(testReservation));
         when(reservationRepository.save(testReservation)).thenReturn(testReservation);
-
-        Reservation result = reservationServiceImpl.cancelReservationByReservationId(testReservation.getId());
-
-        assertNotNull(result);
-        assertEquals(testReservation, result);
+        ApiResponse<Reservation> response = reservationServiceImpl.cancelReservationByReservationId(testReservation.getId());
+        assertNotNull(response);
+        Reservation result = response.getData();
+        assertEquals("success", response.getStatus());
+        assertEquals("Reservation canceled successfully", response.getMessage());
         assertEquals(ReservationStatus.CANCELED, testReservation.getStatus());
         verify(reservationRepository).save(testReservation);
     }
