@@ -1,11 +1,13 @@
 package edu.eci.UniReserva.UniReserva_Backend.service;
 
 import edu.eci.UniReserva.UniReserva_Backend.model.User;
+import edu.eci.UniReserva.UniReserva_Backend.model.dto.ApiResponse;
+import edu.eci.UniReserva.UniReserva_Backend.model.dto.UserDto;
 
 public interface UserService {
-    User updateUser(String id, User user);
+  ApiResponse<UserDto> updateUser(String id, User user);
 
-    String deleteUser(String id);
+  ApiResponse<UserDto> deleteUser(String id);
 
-    User getUser(String id);
+  ApiResponse<UserDto> getUser(String id);
 }
