@@ -2,6 +2,8 @@ package edu.eci.UniReserva.UniReserva_Backend.service;
 
 import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
 import edu.eci.UniReserva.UniReserva_Backend.model.User;
+import edu.eci.UniReserva.UniReserva_Backend.model.dto.ApiResponse;
+import edu.eci.UniReserva.UniReserva_Backend.model.dto.UserDto;
 import edu.eci.UniReserva.UniReserva_Backend.repository.ReservationRepository;
 import edu.eci.UniReserva.UniReserva_Backend.repository.UserRepository;
 import edu.eci.UniReserva.UniReserva_Backend.service.impl.ReservationServiceImpl;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -28,16 +31,17 @@ class UserServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     private User validUser;
     private User updateName;
-    private User updatePassword;
 
     @BeforeEach
     void setUp() {
         validUser = new User("1037126548", "Daniel", "email@gmail.com", "Password#123");
         updateName = new User("1037126548", "Alejandro", "email@gmail.com", "Password#123");
-        updatePassword = new User("1037126548", "Daniel", "email@gmail.com", "NewPassword#123");
+        userServiceImpl = new UserServiceImpl(userRepository, passwordEncoder);
     }
 
     @Test
@@ -45,32 +49,34 @@ class UserServiceImplTest {
         when(userRepository.findById(validUser.getId())).thenReturn(Optional.of(validUser));
         when(userRepository.save(any(User.class))).thenReturn(updateName);
 
-        User result = userServiceImpl.updateUser(validUser.getId(), new User(null, "Alejandro", null, null));
-
+        ApiResponse<UserDto> response = userServiceImpl.updateUser(validUser.getId(), new User(null, "Alejandro", null, null));
+        assertNotNull(response);
+        assertNotNull(response.getData());
+        UserDto result = response.getData();
         assertNotNull(result);
-        assertEquals(updateName, result);
         verify(userRepository).save(argThat(user ->
                 user.getId().equals(validUser.getId()) &&
                         user.getName().equals("Alejandro") &&
-                        user.getEmail().equals(validUser.getEmail()) &&
-                        user.getPassword().equals(validUser.getPassword())
+                        user.getEmail().equals(validUser.getEmail())
         ));
     }
 
     @Test
     public void shouldUpdatePassword() {
         when(userRepository.findById(validUser.getId())).thenReturn(Optional.of(validUser));
-        when(userRepository.save(any(User.class))).thenReturn(updatePassword);
+        when(passwordEncoder.encode("NewPassword#123")).thenReturn("encodedPassword123");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User result = userServiceImpl.updateUser(validUser.getId(), new User(null, null, null, "NewPassword#123"));
 
+        ApiResponse<UserDto> response = userServiceImpl.updateUser(validUser.getId(), new User(null, null, null, "NewPassword#123"));
+        assertNotNull(response);
+        assertNotNull(response.getData());
+        UserDto result = response.getData();
         assertNotNull(result);
-        assertEquals(updatePassword, result);
         verify(userRepository).save(argThat(user ->
                 user.getId().equals(validUser.getId()) &&
                         user.getName().equals(validUser.getName()) &&
-                        user.getEmail().equals(validUser.getEmail()) &&
-                        user.getPassword().equals("NewPassword#123")
+                        user.getEmail().equals(validUser.getEmail())
         ));
     }
 
@@ -109,9 +115,12 @@ class UserServiceImplTest {
         String userId = validUser.getId();
         when(userRepository.existsById(userId)).thenReturn(true);
         when(userRepository.findById(userId)).thenReturn(Optional.of(validUser));
-        String result = userServiceImpl.deleteUser(userId);
+        ApiResponse<UserDto> response = userServiceImpl.deleteUser(userId);
         verify(userRepository).deleteById(userId);
-        assertEquals("User with ID " + userId + " deleted successfully", result);
+        assertNotNull(response);
+        assertEquals("success", response.getStatus());
+        assertEquals("User deleted", response.getMessage());
+        assertNull(response.getData());
     }
 
 
@@ -138,12 +147,14 @@ class UserServiceImplTest {
     @Test
     void shouldGetUserWhenUserExists() {
         when(userRepository.findById(validUser.getId())).thenReturn(Optional.of(validUser));
-        User result = userServiceImpl.getUser(validUser.getId());
+        ApiResponse<UserDto>response = userServiceImpl.getUser(validUser.getId());
+        assertNotNull(response);
+        assertNotNull(response.getData());
+        UserDto result = response.getData();
         assertNotNull(result);
         assertEquals("1037126548", result.getId());
         assertEquals("Daniel", result.getName());
         assertEquals("email@gmail.com",result.getEmail());
-        assertEquals("Password#123",result.getPassword());
     }
 
     @Test

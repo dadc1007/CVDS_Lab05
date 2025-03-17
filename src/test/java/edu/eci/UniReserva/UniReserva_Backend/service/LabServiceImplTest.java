@@ -1,6 +1,8 @@
 package edu.eci.UniReserva.UniReserva_Backend.service;
 
 import edu.eci.UniReserva.UniReserva_Backend.model.Lab;
+import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
+import edu.eci.UniReserva.UniReserva_Backend.model.dto.ApiResponse;
 import edu.eci.UniReserva.UniReserva_Backend.repository.LabRepository;
 import edu.eci.UniReserva.UniReserva_Backend.service.impl.LabServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +45,10 @@ public class LabServiceImplTest {
                 new Lab()
         );
         when(labRepository.findAll()).thenReturn(mockLabs);
-        List<Lab> result = labService.getLabs();
+        ApiResponse<List<Lab>> response = labService.getLabs();
+        assertNotNull(response);
+        assertNotNull(response.getData());
+        List<Lab> result = response.getData();
         assertNotNull(result);
         assertEquals(2, result.size());
         assertEquals("Laboratorio de Física", result.get(0).getName());
