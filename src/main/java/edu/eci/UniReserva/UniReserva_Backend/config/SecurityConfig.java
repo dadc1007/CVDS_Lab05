@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -25,26 +26,32 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    return http.cors()
-        .and()
-        .csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(
-            authRequest ->
-                authRequest.requestMatchers("/auth/**").permitAll().anyRequest().authenticated())
-        .sessionManagement(
-            sessionManager -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authenticationProvider(authProvider)
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-        .build();
+    return http
+            .cors()
+            .and()
+            .csrf(AbstractHttpConfigurer::disable)
+            .requiresChannel(channel ->
+                    channel.anyRequest().requiresSecure()
+            )
+            .authorizeHttpRequests(authRequest ->
+                    authRequest.requestMatchers("/auth/**").permitAll()
+                            .anyRequest().authenticated()
+            )
+            .sessionManagement(sessionManager ->
+                    sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .authenticationProvider(authProvider)
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
   }
 
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(
-        List.of(
-            "http://localhost:5173",
-            "https://unireserva-haa2a4e3aueeeqes.brazilsouth-01.azurewebsites.net"));
+            List.of(
+                    "http://localhost:5173",
+                    "https://unireserva-haa2a4e3aueeeqes.brazilsouth-01.azurewebsites.net"));
     configuration.setAllowedMethods(List.of("*"));
     configuration.setAllowedHeaders(List.of("*"));
     configuration.setAllowCredentials(true);

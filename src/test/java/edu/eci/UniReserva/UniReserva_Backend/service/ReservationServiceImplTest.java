@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.never;
@@ -31,13 +32,22 @@ import static org.mockito.Mockito.when;
 import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
 import edu.eci.UniReserva.UniReserva_Backend.model.enums.ReservationStatus;
 import edu.eci.UniReserva.UniReserva_Backend.repository.ReservationRepository;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class ReservationServiceImplTest {
-
+    @Mock
     private ReservationRepository reservationRepository;
+    @Mock
     private LabRepository labRepository;
+    @Mock
     private UserRepository userRepository;
+    @InjectMocks
     private ReservationServiceImpl reservationServiceImpl;
+    @InjectMocks
     private Reservation testReservation;
 
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
