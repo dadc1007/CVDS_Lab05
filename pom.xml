@@ -123,14 +123,6 @@
 				<version>4.0.0.4121</version>
 			</plugin>
 		</plugins>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<includes>
-					<include>unireserva-keystore.p12</include>
-				</includes>
-			</resource>
-		</resources>
 	</build>
 
 </project>
