@@ -28,4 +28,9 @@ public class LabController {
   public ResponseEntity<ApiResponse<String>> getLabNameById(@PathVariable String labId) {
     return ResponseEntity.ok(labService.getLabNameById(labId));
   }
+
+  @GetMapping("/lab/{labId}")
+  public ResponseEntity<ApiResponse<Lab>> getLaById(@PathVariable String labId) {
+    return ResponseEntity.ok(labService.getLabById(labId));
+  }
 }
