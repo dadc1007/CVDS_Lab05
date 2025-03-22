@@ -20,6 +20,7 @@ jobs:
         run: |
           echo "DATA_BASE_URL=${{ secrets.DATA_BASE_URL }}" >> $GITHUB_ENV
           echo "DATA_BASE_NAME=${{ secrets.DATA_BASE_NAME }}" >> $GITHUB_ENV
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> $GITHUB_ENV
       - uses: actions/checkout@v4
 
       - name: Set up Java version

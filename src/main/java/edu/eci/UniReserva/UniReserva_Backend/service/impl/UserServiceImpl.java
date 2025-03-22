@@ -94,6 +94,6 @@ public class UserServiceImpl implements UserService {
   }
 
   private UserDto toUserDTO(User user) {
-    return new UserDto(user.getId(), user.getName(), user.getEmail(), user.getReservations());
+    return new UserDto(user.getId(), user.getName(), user.getEmail(), user.getReservations(),user.getRole());
   }
 }

@@ -6,4 +6,6 @@ public interface AuthService {
   ApiResponse<UserDto> authenticateLogin(LoginUserDto request);
 
   ApiResponse<UserDto> authenticateSignUp(RegisterUserDto request);
+
+  ApiResponse<UserDto> createAdmin(RegisterUserDto request);
 }

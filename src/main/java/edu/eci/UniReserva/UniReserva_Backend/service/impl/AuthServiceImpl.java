@@ -3,6 +3,7 @@ package edu.eci.UniReserva.UniReserva_Backend.service.impl;
 import edu.eci.UniReserva.UniReserva_Backend.jwt.JwtService;
 import edu.eci.UniReserva.UniReserva_Backend.model.User;
 import edu.eci.UniReserva.UniReserva_Backend.model.dto.*;
+import edu.eci.UniReserva.UniReserva_Backend.model.enums.Role;
 import edu.eci.UniReserva.UniReserva_Backend.repository.UserRepository;
 import edu.eci.UniReserva.UniReserva_Backend.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +53,8 @@ public class AuthServiceImpl implements AuthService {
             request.getId(),
             request.getName(),
             request.getEmail(),
-            passwordEncoder.encode(request.getPassword()));
+            passwordEncoder.encode(request.getPassword()),
+            Role.PROFESOR);
 
     userRepository.save(user);
 
@@ -64,6 +66,34 @@ public class AuthServiceImpl implements AuthService {
         .build();
   }
 
+  @Override
+  public ApiResponse<UserDto> createAdmin(RegisterUserDto request) {
+    if (emailExists(request.getEmail())) {
+      throw new IllegalArgumentException("Email already exists");
+    }
+
+    if (!validPassword(request.getPassword())) {
+      throw new IllegalArgumentException("Invalid password");
+    }
+
+    User user =
+            new User(
+                    request.getId(),
+                    request.getName(),
+                    request.getEmail(),
+                    passwordEncoder.encode(request.getPassword()),
+                    Role.ADMIN);
+
+    userRepository.save(user);
+
+    return ApiResponse.<UserDto>builder()
+            .status("success")
+            .message("ADMIN successfully")
+            .data(toUserDTO(user))
+            .token(jwtService.generateToken(user))
+            .build();
+  }
+
   private boolean emailExists(String email) {
     return userRepository.findByEmail(email).isPresent();
   }
@@ -73,6 +103,6 @@ public class AuthServiceImpl implements AuthService {
   }
 
   private UserDto toUserDTO(User user) {
-    return new UserDto(user.getId(), user.getName(), user.getEmail(), user.getReservations());
+    return new UserDto(user.getId(), user.getName(), user.getEmail(), user.getReservations(), user.getRole());
   }
 }
