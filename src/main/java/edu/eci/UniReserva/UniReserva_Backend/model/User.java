@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import edu.eci.UniReserva.UniReserva_Backend.model.enums.Role;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,9 +22,9 @@ public class User implements UserDetails {
     private String email;
     private String password;
     private List<String> reservations = new ArrayList<>();
-    private String rol;
+    private Role rol;
 
-    public User(String id, String name, String email, String password, String rol) {
+    public User(String id, String name, String email, String password, Role rol) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -38,7 +39,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(() -> "ROLE_" + rol.toUpperCase());
+        return List.of(() -> "ROLE_" + rol.name());
     }
 
     @Override
@@ -66,7 +67,7 @@ public class User implements UserDetails {
         return true;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return rol;
     }
 }

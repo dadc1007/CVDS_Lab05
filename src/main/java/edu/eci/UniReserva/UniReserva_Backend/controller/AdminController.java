@@ -1,8 +1,13 @@
 package edu.eci.UniReserva.UniReserva_Backend.controller;
 
 import edu.eci.UniReserva.UniReserva_Backend.model.User;
+import edu.eci.UniReserva.UniReserva_Backend.model.dto.ApiResponse;
 import edu.eci.UniReserva.UniReserva_Backend.model.dto.RegisterUserDto;
+import edu.eci.UniReserva.UniReserva_Backend.model.dto.UserDto;
+import edu.eci.UniReserva.UniReserva_Backend.model.enums.Role;
 import edu.eci.UniReserva.UniReserva_Backend.repository.UserRepository;
+import edu.eci.UniReserva.UniReserva_Backend.service.AuthService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,29 +22,14 @@ import java.util.List;
 @RequestMapping("/admin")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final AuthService authService;
 
-    public AdminController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    public AdminController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/createUser")
-    public ResponseEntity<?> createUser(@RequestBody RegisterUserDto request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            return ResponseEntity.badRequest().body("Email already exists");
-        }
-
-        User newUser = new User(
-                request.getId(),
-                request.getName(),
-                request.getEmail(),
-                passwordEncoder.encode(request.getPassword()),
-                "ADMIN");
-
-        userRepository.save(newUser);
-
-        return ResponseEntity.ok("User created successfully");
+    public  ResponseEntity<ApiResponse<UserDto>> createUser(@RequestBody RegisterUserDto request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.createAdmin(request));
     }
 }

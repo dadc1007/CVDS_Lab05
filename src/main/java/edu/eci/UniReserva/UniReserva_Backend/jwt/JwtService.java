@@ -1,6 +1,7 @@
 package edu.eci.UniReserva.UniReserva_Backend.jwt;
 
 import edu.eci.UniReserva.UniReserva_Backend.model.User;
+import edu.eci.UniReserva.UniReserva_Backend.model.enums.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -30,7 +31,7 @@ public class JwtService {
   public String generateToken(Map<String, Object> extraClaims, UserDetails user) {
     if (user instanceof User) {
       User appUser = (User) user;
-      extraClaims.put("role", appUser.getRole());
+      extraClaims.put("role", appUser.getRole().name());
     }
     return Jwts.builder()
         .setClaims(extraClaims)
@@ -76,7 +77,8 @@ public class JwtService {
     return extractExpiration(token).before(new Date());
   }
 
-  public String extractRole(String token) {
-    return extractClaim(token, claims -> claims.get("role", String.class));
+  public Role extractRole(String token) {
+    String roleName = extractClaim(token, claims -> claims.get("role", String.class));
+    return Role.valueOf(roleName);
   }
 }
