@@ -21,12 +21,14 @@ public class User implements UserDetails {
     private String email;
     private String password;
     private List<String> reservations = new ArrayList<>();
+    private String rol;
 
-    public User(String id, String name, String email, String password) {
+    public User(String id, String name, String email, String password, String rol) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
+        this.rol = rol;
     }
 
     public void addReservationId(String reservationId) {
@@ -36,7 +38,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(() -> "ROLE_" + rol.toUpperCase());
     }
 
     @Override
@@ -62,5 +64,9 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public String getRole() {
+        return rol;
     }
 }

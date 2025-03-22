@@ -14,4 +14,5 @@ public class UserDto {
     private String name;
     private String email;
     private List<String> reservations;
+    private String rol;
 }

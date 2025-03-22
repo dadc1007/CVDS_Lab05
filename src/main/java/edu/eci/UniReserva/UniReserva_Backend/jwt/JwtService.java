@@ -1,5 +1,6 @@
 package edu.eci.UniReserva.UniReserva_Backend.jwt;
 
+import edu.eci.UniReserva.UniReserva_Backend.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -27,6 +28,10 @@ public class JwtService {
   }
 
   public String generateToken(Map<String, Object> extraClaims, UserDetails user) {
+    if (user instanceof User) {
+      User appUser = (User) user;
+      extraClaims.put("role", appUser.getRole());
+    }
     return Jwts.builder()
         .setClaims(extraClaims)
         .setSubject(user.getUsername())
@@ -34,6 +39,11 @@ public class JwtService {
         .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
         .signWith(getKey(), SignatureAlgorithm.HS256)
         .compact();
+  }
+
+  public String generateToken(User user) {
+    Map<String, Object> extraClaims = new HashMap<>();
+    return generateToken(extraClaims, user);
   }
 
   public String extractUserEmail(String token) {
@@ -64,5 +74,9 @@ public class JwtService {
 
   private boolean isTokenExpired(String token) {
     return extractExpiration(token).before(new Date());
+  }
+
+  public String extractRole(String token) {
+    return extractClaim(token, claims -> claims.get("role", String.class));
   }
 }

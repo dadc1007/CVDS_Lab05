@@ -52,7 +52,8 @@ public class AuthServiceImpl implements AuthService {
             request.getId(),
             request.getName(),
             request.getEmail(),
-            passwordEncoder.encode(request.getPassword()));
+            passwordEncoder.encode(request.getPassword()),
+            "USER");
 
     userRepository.save(user);
 
@@ -73,6 +74,6 @@ public class AuthServiceImpl implements AuthService {
   }
 
   private UserDto toUserDTO(User user) {
-    return new UserDto(user.getId(), user.getName(), user.getEmail(), user.getReservations());
+    return new UserDto(user.getId(), user.getName(), user.getEmail(), user.getReservations(), user.getRole());
   }
 }
