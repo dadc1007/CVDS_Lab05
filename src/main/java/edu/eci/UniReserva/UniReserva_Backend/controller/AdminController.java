@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
-@PreAuthorize("hasRole('ADMIN')") // Restringe acceso solo a ADMIN
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -25,7 +25,7 @@ public class AdminController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping("/create-user")
+    @PostMapping("/createUser")
     public ResponseEntity<?> createUser(@RequestBody RegisterUserDto request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             return ResponseEntity.badRequest().body("Email already exists");
