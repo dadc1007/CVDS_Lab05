@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.never;
@@ -33,7 +34,6 @@ import edu.eci.UniReserva.UniReserva_Backend.model.enums.ReservationStatus;
 import edu.eci.UniReserva.UniReserva_Backend.repository.ReservationRepository;
 
 public class ReservationServiceImplTest {
-
     private ReservationRepository reservationRepository;
     private LabRepository labRepository;
     private UserRepository userRepository;

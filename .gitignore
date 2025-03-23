@@ -33,3 +33,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignorar archivos SSL
+*.crt
+*.csr
+*.key
+*.pfx
+
