@@ -58,7 +58,7 @@ public class JwtService {
     return userEmail.equals(user.getUsername()) && !isTokenExpired(token);
   }
 
-  private SecretKey getKey() {
+  public SecretKey getKey() {
     byte[] keyBytes = Decoders.BASE64.decode(secretKey);
     return Keys.hmacShaKeyFor(keyBytes);
   }
