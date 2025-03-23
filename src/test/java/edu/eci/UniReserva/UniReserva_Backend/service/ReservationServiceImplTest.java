@@ -1,7 +1,6 @@
 package edu.eci.UniReserva.UniReserva_Backend.service;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.never;
@@ -306,6 +304,18 @@ public class ReservationServiceImplTest {
     }
 
     @Test
+    void getReservationsByUserId_ShouldThrowException_WhenUserNotFound() {
+        when(userRepository.existsById("nonexistent-user")).thenReturn(false);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            reservationServiceImpl.getReservationsByUserId("nonexistent-user");
+        });
+
+        assertEquals("User with id nonexistent-user not found.", exception.getMessage());
+    }
+
+
+    @Test
     void shouldCancelReservationWhenItExist() {
         when(reservationRepository.findById(testReservation.getId())).thenReturn(Optional.of(testReservation));
         when(reservationRepository.save(testReservation)).thenReturn(testReservation);
@@ -341,5 +351,53 @@ public class ReservationServiceImplTest {
         assertEquals("This reservation is already cancelled", exception.getMessage());
     }
 
+    @Test
+    void shouldReturnConfirmedReservationsWithinRange() {
+        when(labRepository.existsById("lab01")).thenReturn(true);
+
+        Reservation res1 = new Reservation("user1", "lab01", "2025-05-02", "10:00", "12:00", "Study", 1);
+        res1.setStatus(ReservationStatus.CONFIRMED);
+
+        Reservation res2 = new Reservation("user2", "lab01", "2025-05-05", "14:00", "16:00", "Research", 1);
+        res2.setStatus(ReservationStatus.CONFIRMED);
+
+        Reservation res3 = new Reservation("user3", "lab01", "2025-05-11", "10:00", "12:00", "Out of range", 1);
+        res3.setStatus(ReservationStatus.CONFIRMED);
+
+        Reservation res4 = new Reservation("user4", "lab01", "2025-05-04", "09:00", "10:00", "Not confirmed", 1);
+        res4.setStatus(ReservationStatus.CANCELED);
+
+        when(reservationRepository.findAll()).thenReturn(Arrays.asList(res1, res2, res3, res4));
+
+        ApiResponse<List<Reservation>> response = reservationServiceImpl.getReservationsByRangeDate("lab01", "2025-05-01", "2025-05-10");
+
+        assertNotNull(response);
+        assertNotNull(response.getData());
+        assertEquals(2, response.getData().size());
+        assertTrue(response.getData().contains(res1));
+        assertTrue(response.getData().contains(res2));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenLabDoesNotExist() {
+        when(labRepository.existsById("lab01")).thenReturn(false);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            reservationServiceImpl.getReservationsByRangeDate("lab01", "2025-05-01", "2025-05-10");
+        });
+
+        assertEquals("Lab with id lab01 does not exist.", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenStartDateIsAfterEndDate() {
+        when(labRepository.existsById("lab01")).thenReturn(true);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            reservationServiceImpl.getReservationsByRangeDate("lab01", "2025-05-10", "2025-05-01");
+        });
+
+        assertEquals("Start date must be before end date.", exception.getMessage());
+    }
 }
 
