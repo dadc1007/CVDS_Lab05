@@ -18,9 +18,11 @@ import java.util.function.Function;
 @Service
 public class JwtService {
   private static final long EXPIRATION_TIME = 3600000; // 1 hora
+  private final String secretKey;
 
-  @Value("${JWT_SECRET_KEY}")
-  private String secretKey;
+  public JwtService(@Value("${JWT_SECRET_KEY}") String secretKey) {
+    this.secretKey = secretKey;
+  }
 
   public String generateToken(UserDetails userDetails) {
     return generateToken(new HashMap<>(), userDetails);
