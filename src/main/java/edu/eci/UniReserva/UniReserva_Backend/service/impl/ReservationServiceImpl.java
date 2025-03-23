@@ -214,4 +214,13 @@ public class ReservationServiceImpl implements ReservationService {
   private boolean validatePriority(int priority) {
     return priority >= 1 && priority <= 5;
   }
+
+  @Override
+  public ApiResponse<List<Reservation>> getAllReservations() {
+    return ApiResponse.<List<Reservation>>builder()
+            .status("success")
+            .message("Reseervations retrieved successfully")
+            .data(reservationRepository.findAll())
+            .build();
+  }
 }
