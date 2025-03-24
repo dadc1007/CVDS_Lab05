@@ -25,26 +25,29 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    return http.cors()
-        .and()
-        .csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(
-            authRequest ->
-                authRequest.requestMatchers("/auth/**").permitAll().anyRequest().authenticated())
-        .sessionManagement(
-            sessionManager -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authenticationProvider(authProvider)
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-        .build();
+    return http
+            .cors()
+            .and()
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(authRequest -> authRequest
+                    .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers("/admin/**").hasRole("ADMIN")
+                    .anyRequest().authenticated()
+            )
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authenticationProvider(authProvider)
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
   }
+
 
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(
-        List.of(
-            "http://localhost:5173",
-            "https://unireserva-haa2a4e3aueeeqes.brazilsouth-01.azurewebsites.net"));
+            List.of(
+                    "https://localhost:5173",
+                    "https://unireserva-haa2a4e3aueeeqes.brazilsouth-01.azurewebsites.net"));
     configuration.setAllowedMethods(List.of("*"));
     configuration.setAllowedHeaders(List.of("*"));
     configuration.setAllowCredentials(true);

@@ -38,4 +38,18 @@ public class LabServiceImpl implements LabService {
         .data(lab.getName())
         .build();
   }
+
+  @Override
+  public ApiResponse<Lab> getLabById(String id) {
+    Lab lab =
+            labRepository
+                    .findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Lab not found with id: " + id));
+
+    return ApiResponse.<Lab>builder()
+            .status("success")
+            .message("Lab found")
+            .data(lab)
+            .build();
+  }
 }

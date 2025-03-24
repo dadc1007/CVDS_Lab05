@@ -76,4 +76,9 @@ public class ReservationController {
       @RequestParam String lab, @RequestParam String date1, @RequestParam String date2) {
     return ResponseEntity.ok(reservationService.getReservationsByRangeDate(lab, date1, date2));
   }
+
+  @GetMapping("/allReservations")
+  public ResponseEntity<ApiResponse<List<Reservation>>> getAllReservations() {
+    return ResponseEntity.ok(reservationService.getAllReservations());
+  }
 }

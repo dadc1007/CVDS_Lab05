@@ -13,4 +13,6 @@ public interface ReservationService {
   ApiResponse<Reservation> cancelReservationByReservationId(String reservationId);
 
   ApiResponse<List<Reservation>> getReservationsByRangeDate(String lab, String date1, String date2);
+
+  ApiResponse<List<Reservation>> getAllReservations();
 }

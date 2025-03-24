@@ -1,154 +1,139 @@
-//package edu.eci.UniReserva.UniReserva_Backend.controller;
-//
-//
-//import java.time.LocalDate;
-//import java.time.format.DateTimeFormatter;
-//import java.util.Arrays;
-//import java.util.Collections;
-//
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//
-//import static org.mockito.ArgumentMatchers.any;
-//import static org.mockito.Mockito.times;
-//import static org.mockito.Mockito.verify;
-//import static org.mockito.Mockito.when;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.http.MediaType;
-//import org.springframework.test.web.servlet.MockMvc;
-//
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-//
-//import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-//
-//import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
-//import edu.eci.UniReserva.UniReserva_Backend.service.impl.ReservationServiceImpl;
-//
-//@ExtendWith(MockitoExtension.class)
-//public class ReservationControllerTest {
-//
-//    private MockMvc mockMvc;
-//    private Reservation testReservation;
-//    private ObjectMapper objectMapper;
-//
-//    @Mock
-//    private ReservationServiceImpl reservationServiceImpl;
-//
-//    @InjectMocks
-//    private ReservationController reservationController;
-//
-//    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//
-//
-//
-//    @BeforeEach
-//    public void setUp() {
-//        mockMvc = MockMvcBuilders.standaloneSetup(reservationController).build();
-//        testReservation = new Reservation(
-//                "user123",
-//                "lab01",
-//                "2025-05-01",
-//                "10:00",
-//                "12:00",
-//                "Project research",
-//                1
-//        );
-//        objectMapper = new ObjectMapper();
-//    }
-//
-//    @Test
-//    void shouldCreateReservationSuccessfully() throws Exception {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//
-//        when(reservationServiceImpl.createReservation(any(Reservation.class))).thenReturn(testReservation);
-//
-//        mockMvc.perform(post("/reservations")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(objectMapper.writeValueAsString(testReservation)))
-//                .andExpect(status().isCreated())
-//                .andExpect(jsonPath("$.userId").value("user123"))
-//                .andExpect(jsonPath("$.labId").value("lab01"))
-//                .andExpect(jsonPath("$.date").value("2025-05-01"))
-//                .andExpect(jsonPath("$.startTime").value("10:00"))
-//                .andExpect(jsonPath("$.endTime").value("12:00"))
-//                .andExpect(jsonPath("$.purpose").value("Project research"))
-//                .andExpect(jsonPath("$.status").value("CONFIRMED"));
-//    }
-//
-//
-//    @Test
-//    public void shouldReturnReservationsForUser() throws Exception {
-//        String userId = "user123";
-//        String date1 = LocalDate.now().format(dateFormatter);
-//        String date2 = LocalDate.now().plusDays(1).format(dateFormatter);
-//        Reservation res1 = new Reservation(userId, "lab1", date1, "10:00", "11:00", "Study", 1);
-//        Reservation res2 = new Reservation(userId, "lab2", date2, "12:00", "13:00", "Project", 1);
-//
-//        when(reservationServiceImpl.getReservationsByUserId(userId)).thenReturn(Arrays.asList(res1, res2));
-//
-//        mockMvc.perform(get("/reservations/user/{userId}", userId)
-//                .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.length()").value(2))
-//                .andExpect(jsonPath("$[0].labId").value("lab1"))
-//                .andExpect(jsonPath("$[1].labId").value("lab2"));
-//
-//        verify(reservationServiceImpl, times(1)).getReservationsByUserId(userId);
-//    }
-//
-//
-//    @Test
-//    public void shouldReturnEmptyListForUserWithoutReservations() throws Exception {
-//        String userId = "user456";
-//
-//        when(reservationServiceImpl.getReservationsByUserId(userId)).thenReturn(Collections.emptyList());
-//
-//        mockMvc.perform(get("/reservations/user/{userId}", userId)
-//                .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.length()").value(0));
-//
-//        verify(reservationServiceImpl, times(1)).getReservationsByUserId(userId);
-//    }
-//
-//    @Test
-//    void shouldCancelAReservation() throws Exception {
-//        String validReserveJson = objectMapper.writeValueAsString(testReservation);
-//        when(reservationServiceImpl.cancelReservationByReservationId("123"))
-//                .thenReturn(testReservation);
-//
-//        mockMvc.perform(put("/reservations/cancel/123")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(validReserveJson))
-//                .andExpect(status().isOk())
-//                .andExpect(content().json(validReserveJson));
-//    }
-//
-//    @Test
-//    void shouldNotCancelAReservationWhenItNotExist() throws Exception {
-//        when(reservationServiceImpl.cancelReservationByReservationId("123"))
-//                .thenThrow(new IllegalArgumentException("Reservation with id 123 not found."));
-//
-//        mockMvc.perform(put("/reservations/cancel/123"))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(content().string("{\"error\":\"Reservation with id 123 not found.\"}"));
-//    }
-//
-//    @Test
-//    void shouldNotCancelAReservationWhenAlreadyIsCancelled() throws Exception {
-//        when(reservationServiceImpl.cancelReservationByReservationId("123"))
-//                .thenThrow(new IllegalArgumentException("This reservation is already cancelled"));
-//
-//        mockMvc.perform(put("/reservations/cancel/123"))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(content().string("{\"error\":\"This reservation is already cancelled\"}"));
-//    }
-//}
+package edu.eci.UniReserva.UniReserva_Backend.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.eci.UniReserva.UniReserva_Backend.model.Reservation;
+import edu.eci.UniReserva.UniReserva_Backend.model.dto.ApiResponse;
+import edu.eci.UniReserva.UniReserva_Backend.service.ReservationService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
+class ReservationControllerTest {
+
+  @Autowired private MockMvc mockMvc;
+
+  @MockitoBean private ReservationService reservationService;
+
+  @Autowired private ObjectMapper objectMapper;
+
+  private Reservation reservation1;
+  private Reservation reservation2;
+
+  @BeforeEach
+  void setUp() {
+    reservation1 = new Reservation();
+    reservation1.setId("1");
+    reservation1.setUserId("123");
+
+    reservation2 = new Reservation();
+    reservation2.setId("2");
+    reservation2.setUserId("456");
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN", "PROFESOR"})
+  void shouldCreateReservation() throws Exception {
+    ApiResponse<Reservation> mockResponse =
+        ApiResponse.<Reservation>builder()
+            .status("success")
+            .message("Reservation created")
+            .data(reservation1)
+            .build();
+
+    when(reservationService.createReservation(ArgumentMatchers.any(Reservation.class)))
+        .thenReturn(mockResponse);
+
+    mockMvc
+        .perform(
+            post("/reservations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reservation1)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.status").value("success"))
+        .andExpect(jsonPath("$.message").value("Reservation created"))
+        .andExpect(jsonPath("$.data.id").value("1"));
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN", "PROFESOR"})
+  void shouldGetUserReservations() throws Exception {
+    List<Reservation> reservations = Arrays.asList(reservation1, reservation2);
+    ApiResponse<List<Reservation>> mockResponse =
+        ApiResponse.<List<Reservation>>builder()
+            .status("success")
+            .message("Reservations retrieved")
+            .data(reservations)
+            .build();
+
+    when(reservationService.getReservationsByUserId("123")).thenReturn(mockResponse);
+
+    mockMvc
+        .perform(get("/reservations/user/123"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("success"))
+        .andExpect(jsonPath("$.data.length()").value(2));
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN", "PROFESOR"})
+  void shouldCancelReservation() throws Exception {
+    ApiResponse<Reservation> mockResponse =
+        ApiResponse.<Reservation>builder()
+            .status("success")
+            .message("Reservation canceled")
+            .data(reservation1)
+            .build();
+
+    when(reservationService.cancelReservationByReservationId("1")).thenReturn(mockResponse);
+
+    mockMvc
+        .perform(put("/reservations/cancel/1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("success"))
+        .andExpect(jsonPath("$.message").value("Reservation canceled"));
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN", "PROFESOR"})
+  void shouldGetReservationsByRangeDate() throws Exception {
+    List<Reservation> reservations = Arrays.asList(reservation1, reservation2);
+    ApiResponse<List<Reservation>> mockResponse =
+        ApiResponse.<List<Reservation>>builder()
+            .status("success")
+            .message("Reservations retrieved")
+            .data(reservations)
+            .build();
+
+    when(reservationService.getReservationsByRangeDate("Lab1", "2024-03-01", "2024-03-10"))
+        .thenReturn(mockResponse);
+
+    mockMvc
+        .perform(
+            get("/reservations/range")
+                .param("lab", "Lab1")
+                .param("date1", "2024-03-01")
+                .param("date2", "2024-03-10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("success"))
+        .andExpect(jsonPath("$.data.length()").value(2));
+  }
+}

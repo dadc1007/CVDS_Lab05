@@ -11,4 +11,6 @@ public interface LabService {
   ApiResponse<List<Lab>> getLabs();
 
   ApiResponse<String> getLabNameById(String id);
+
+  ApiResponse<Lab> getLabById(String id);
 }
