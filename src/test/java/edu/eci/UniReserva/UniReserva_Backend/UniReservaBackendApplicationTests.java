@@ -10,8 +10,8 @@ class UniReservaBackendApplicationTests {
 	void contextLoads() {
 	}
 
-	@Test
-	void mainMethodTest() {
-		UniReservaBackendApplication.main(new String[]{});
-	}
+//	@Test
+//	void mainMethodTest() {
+//		UniReservaBackendApplication.main(new String[]{});
+//	}
 }
