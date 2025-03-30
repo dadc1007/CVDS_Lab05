@@ -19,9 +19,7 @@ public class GlobalExceptionHandler {
       BadCredentialsException ex) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
         .body(
-            Map.of(
-                "error", "Unauthorized",
-                "message", "The username or password is incorrect"));
+            Map.of("error", "Unauthorized", "message", UniReservaException.INVALID_PASSWORD_EMAIL));
   }
 
   @ExceptionHandler(AccountStatusException.class)
@@ -75,5 +73,21 @@ public class GlobalExceptionHandler {
             Map.of(
                 "error", "Internal Server Error",
                 "message", "An unexpected error occurred"));
+  }
+
+  @ExceptionHandler(UniReservaException.class)
+  public ResponseEntity<Map<String, String>> handleUniReservaException(UniReservaException ex) {
+    HttpStatus status = HttpStatus.BAD_REQUEST;
+
+    if (ex.getMessage().equals(UniReservaException.INVALID_PASSWORD_EMAIL)) {
+      status = HttpStatus.UNAUTHORIZED;
+    } else if (ex.getMessage().equals(UniReservaException.LAB_NOT_FOUND)
+        || ex.getMessage().equals(UniReservaException.USER_NOT_FOUND)
+        || ex.getMessage().equals(UniReservaException.RESERVATION_NOT_FOUND)) {
+      status = HttpStatus.NOT_FOUND;
+    }
+
+    return ResponseEntity.status(status)
+        .body(Map.of("error", status.getReasonPhrase(), "message", ex.getMessage()));
   }
 }
