@@ -63,15 +63,21 @@ A continuación, se presentan algunos de los mockups iniciales realizados en pap
 
   ![Text](assets/3.jpg)
 
-  🔹 Definición del **modelo de datos** (salones y reservas).
+  🔹 Definición del **modelo de datos**.
 
-  ![Text](assets/4.jpg)
+  ![Text](assets/modelobase.png)
+
+  🔹 Definición del **modelo de clases**.
+
+  ![Text](assets/modeloclases.jpg)
+
+  🔹 Definición del **modelo de arquitectura de software**.
+
+  ![Text](assets/modeloarquitectura.jpg)
 
 ---
 
 ### ⚡ **Sprint 2: Implementación del API REST**
-
-
 
 ![Text](assets/17.png)
 
