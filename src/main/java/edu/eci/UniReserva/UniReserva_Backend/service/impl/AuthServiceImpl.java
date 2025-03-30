@@ -1,5 +1,6 @@
 package edu.eci.UniReserva.UniReserva_Backend.service.impl;
 
+import edu.eci.UniReserva.UniReserva_Backend.exceptions.UniReservaException;
 import edu.eci.UniReserva.UniReserva_Backend.jwt.JwtService;
 import edu.eci.UniReserva.UniReserva_Backend.model.User;
 import edu.eci.UniReserva.UniReserva_Backend.model.dto.*;
@@ -28,7 +29,7 @@ public class AuthServiceImpl implements AuthService {
     User user =
         userRepository
             .findByEmail(request.getEmail())
-            .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+            .orElseThrow(() -> new UniReservaException(UniReservaException.INVALID_PASSWORD_EMAIL));
 
     return ApiResponse.<UserDto>builder()
         .status("success")
@@ -41,11 +42,11 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public ApiResponse<UserDto> authenticateSignUp(RegisterUserDto request) {
     if (emailExists(request.getEmail())) {
-      throw new IllegalArgumentException("Email already exists");
+      throw new UniReservaException(UniReservaException.EMAIL_EXISTS);
     }
 
     if (!validPassword(request.getPassword())) {
-      throw new IllegalArgumentException("Invalid password");
+      throw new UniReservaException(UniReservaException.INVALID_PASSWORD);
     }
 
     User user =
@@ -69,29 +70,29 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public ApiResponse<UserDto> createAdmin(RegisterUserDto request) {
     if (emailExists(request.getEmail())) {
-      throw new IllegalArgumentException("Email already exists");
+      throw new UniReservaException(UniReservaException.EMAIL_EXISTS);
     }
 
     if (!validPassword(request.getPassword())) {
-      throw new IllegalArgumentException("Invalid password");
+      throw new UniReservaException(UniReservaException.INVALID_PASSWORD);
     }
 
     User user =
-            new User(
-                    request.getId(),
-                    request.getName(),
-                    request.getEmail(),
-                    passwordEncoder.encode(request.getPassword()),
-                    Role.ADMIN);
+        new User(
+            request.getId(),
+            request.getName(),
+            request.getEmail(),
+            passwordEncoder.encode(request.getPassword()),
+            Role.ADMIN);
 
     userRepository.save(user);
 
     return ApiResponse.<UserDto>builder()
-            .status("success")
-            .message("ADMIN successfully")
-            .data(toUserDTO(user))
-            .token(jwtService.generateToken(user))
-            .build();
+        .status("success")
+        .message("ADMIN successfully")
+        .data(toUserDTO(user))
+        .token(jwtService.generateToken(user))
+        .build();
   }
 
   private boolean emailExists(String email) {
@@ -103,6 +104,7 @@ public class AuthServiceImpl implements AuthService {
   }
 
   private UserDto toUserDTO(User user) {
-    return new UserDto(user.getId(), user.getName(), user.getEmail(), user.getReservations(), user.getRole());
+    return new UserDto(
+        user.getId(), user.getName(), user.getEmail(), user.getReservations(), user.getRole());
   }
 }

@@ -1,5 +1,6 @@
 package edu.eci.UniReserva.UniReserva_Backend.service.impl;
 
+import edu.eci.UniReserva.UniReserva_Backend.exceptions.UniReservaException;
 import edu.eci.UniReserva.UniReserva_Backend.model.User;
 import edu.eci.UniReserva.UniReserva_Backend.model.dto.ApiResponse;
 import edu.eci.UniReserva.UniReserva_Backend.model.dto.UserDto;
@@ -20,10 +21,10 @@ public class UserServiceImpl implements UserService {
     User existingUser =
         userRepository
             .findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+            .orElseThrow(() -> new UniReservaException(UniReservaException.USER_NOT_FOUND));
 
     if (user.getEmail() != null) {
-      throw new IllegalArgumentException("The email cannot be updated");
+      throw new UniReservaException(UniReservaException.EMAIL_CANNOT_BE_UPDATED);
     }
 
     if (user.getName() != null) {
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService {
 
     if (user.getPassword() != null) {
       if (!validPassword(user.getPassword())) {
-        throw new IllegalArgumentException("Invalid password");
+        throw new UniReservaException(UniReservaException.INVALID_PASSWORD);
       }
       existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
     }
@@ -49,11 +50,11 @@ public class UserServiceImpl implements UserService {
   @Override
   public ApiResponse<UserDto> deleteUser(String id) {
     if (!userRepository.existsById(id)) {
-      throw new IllegalArgumentException("User not found");
+      throw new UniReservaException(UniReservaException.USER_NOT_FOUND);
     }
 
     if (hasRepository(id)) {
-      throw new IllegalArgumentException("User has Repository, can't be deleted");
+      throw new UniReservaException(UniReservaException.USER_CANNOT_BE_DELETED);
     }
 
     userRepository.deleteById(id);
@@ -66,7 +67,7 @@ public class UserServiceImpl implements UserService {
     User user =
         userRepository
             .findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+            .orElseThrow(() -> new UniReservaException(UniReservaException.USER_NOT_FOUND));
 
     return ApiResponse.<UserDto>builder()
         .status("success")
@@ -83,7 +84,7 @@ public class UserServiceImpl implements UserService {
     User usuario =
         userRepository
             .findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+            .orElseThrow(() -> new UniReservaException(UniReservaException.USER_NOT_FOUND));
     if (usuario.getReservations() == null) {
       return false;
     }

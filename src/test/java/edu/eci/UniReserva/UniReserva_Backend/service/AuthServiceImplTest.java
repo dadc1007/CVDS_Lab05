@@ -1,5 +1,6 @@
 package edu.eci.UniReserva.UniReserva_Backend.service;
 
+import edu.eci.UniReserva.UniReserva_Backend.exceptions.UniReservaException;
 import edu.eci.UniReserva.UniReserva_Backend.jwt.JwtService;
 import edu.eci.UniReserva.UniReserva_Backend.model.User;
 import edu.eci.UniReserva.UniReserva_Backend.model.dto.ApiResponse;
@@ -76,29 +77,29 @@ public class AuthServiceImplTest {
 
     Exception exception =
         assertThrows(
-            IllegalArgumentException.class,
+            UniReservaException.class,
             () -> {
               authServiceImpl.authenticateLogin(
                   new LoginUserDto("invalid@gmail.com", "Password#123"));
             });
 
-    assertEquals("Invalid email or password", exception.getMessage());
+    assertEquals(UniReservaException.INVALID_PASSWORD_EMAIL, exception.getMessage());
   }
 
   @Test
   void testAuthenticateLoginWrongPassword() {
     when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-        .thenThrow(new BadCredentialsException("Invalid email or password"));
+        .thenThrow(new UniReservaException(UniReservaException.INVALID_PASSWORD_EMAIL));
 
     LoginUserDto invalidPasswordDto = new LoginUserDto("invalid@gmail.com", "123");
     Exception exception =
         assertThrows(
-            BadCredentialsException.class,
+            UniReservaException.class,
             () -> {
               authServiceImpl.authenticateLogin(invalidPasswordDto);
             });
 
-    assertEquals("Invalid email or password", exception.getMessage());
+    assertEquals(UniReservaException.INVALID_PASSWORD_EMAIL, exception.getMessage());
   }
 
   @Test
@@ -129,10 +130,9 @@ public class AuthServiceImplTest {
         new RegisterUserDto("12345", "John Doe", "email@gmail.com", "Password123!");
     Exception exception =
         assertThrows(
-            IllegalArgumentException.class,
-            () -> authServiceImpl.authenticateSignUp(registerUserDto));
+            UniReservaException.class, () -> authServiceImpl.authenticateSignUp(registerUserDto));
 
-    assertEquals("Email already exists", exception.getMessage());
+    assertEquals(UniReservaException.EMAIL_EXISTS, exception.getMessage());
     verify(userRepository, never()).save(any(User.class));
   }
 
@@ -142,17 +142,16 @@ public class AuthServiceImplTest {
         new RegisterUserDto("12345", "John Doe", "email@gmail.com", "123!");
     Exception exception =
         assertThrows(
-            IllegalArgumentException.class,
-            () -> authServiceImpl.authenticateSignUp(registerUserDto));
+            UniReservaException.class, () -> authServiceImpl.authenticateSignUp(registerUserDto));
 
-    assertEquals("Invalid password", exception.getMessage());
+    assertEquals(UniReservaException.INVALID_PASSWORD, exception.getMessage());
     verify(userRepository, never()).save(any(User.class));
   }
 
   @Test
   void shouldCreateAdminSuccessfully() {
     RegisterUserDto registerUserDto =
-            new RegisterUserDto("admin123", "Admin User", "admin@example.com", "StrongPassword#123");
+        new RegisterUserDto("admin123", "Admin User", "admin@example.com", "StrongPassword#123");
 
     when(userRepository.findByEmail(registerUserDto.getEmail())).thenReturn(Optional.empty());
     when(passwordEncoder.encode(registerUserDto.getPassword())).thenReturn("encodedPassword");
@@ -168,12 +167,14 @@ public class AuthServiceImplTest {
     assertEquals(registerUserDto.getEmail(), response.getData().getEmail());
     assertEquals("mocked-admin-token", response.getToken());
 
-    verify(userRepository).save(argThat(user ->
-            user.getId().equals(registerUserDto.getId()) &&
-                    user.getName().equals(registerUserDto.getName()) &&
-                    user.getEmail().equals(registerUserDto.getEmail()) &&
-                    user.getRole() == Role.ADMIN
-    ));
+    verify(userRepository)
+        .save(
+            argThat(
+                user ->
+                    user.getId().equals(registerUserDto.getId())
+                        && user.getName().equals(registerUserDto.getName())
+                        && user.getEmail().equals(registerUserDto.getEmail())
+                        && user.getRole() == Role.ADMIN));
   }
 
   @Test
@@ -181,28 +182,24 @@ public class AuthServiceImplTest {
     when(userRepository.findByEmail(validUser.getEmail())).thenReturn(Optional.of(validUser));
 
     RegisterUserDto registerUserDto =
-            new RegisterUserDto("admin123", "Admin User", "email@gmail.com", "StrongPassword#123");
+        new RegisterUserDto("admin123", "Admin User", "email@gmail.com", "StrongPassword#123");
 
-    Exception exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> authServiceImpl.createAdmin(registerUserDto)
-    );
+    Exception exception =
+        assertThrows(UniReservaException.class, () -> authServiceImpl.createAdmin(registerUserDto));
 
-    assertEquals("Email already exists", exception.getMessage());
+    assertEquals(UniReservaException.EMAIL_EXISTS, exception.getMessage());
     verify(userRepository, never()).save(any(User.class));
   }
 
   @Test
   void shouldNotCreateAdminWithInvalidPassword() {
     RegisterUserDto registerUserDto =
-            new RegisterUserDto("admin123", "Admin User", "admin@example.com", "weak");
+        new RegisterUserDto("admin123", "Admin User", "admin@example.com", "weak");
 
-    Exception exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> authServiceImpl.createAdmin(registerUserDto)
-    );
+    Exception exception =
+        assertThrows(UniReservaException.class, () -> authServiceImpl.createAdmin(registerUserDto));
 
-    assertEquals("Invalid password", exception.getMessage());
+    assertEquals(UniReservaException.INVALID_PASSWORD, exception.getMessage());
     verify(userRepository, never()).save(any(User.class));
   }
 }

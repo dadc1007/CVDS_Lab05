@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import edu.eci.UniReserva.UniReserva_Backend.exceptions.UniReservaException;
 import edu.eci.UniReserva.UniReserva_Backend.model.dto.ApiResponse;
 import edu.eci.UniReserva.UniReserva_Backend.model.enums.ReservationStatus;
 import edu.eci.UniReserva.UniReserva_Backend.repository.LabRepository;
@@ -35,29 +36,27 @@ public class ReservationServiceImpl implements ReservationService {
   @Override
   public ApiResponse<Reservation> createReservation(Reservation reservation) {
     if (!labRepository.existsById(reservation.getLabId())) {
-      throw new IllegalArgumentException("The lab does not exist");
+      throw new UniReservaException(UniReservaException.LAB_NOT_FOUND);
     }
 
     if (!userRepository.existsById(reservation.getUserId())) {
-      throw new IllegalArgumentException("The user does not exist");
+      throw new UniReservaException(UniReservaException.USER_NOT_FOUND);
     }
 
     if (!checkStartTime(reservation.getParsedStartTime(), reservation.getParsedDate())) {
-      throw new IllegalArgumentException(
-          "The start time must be in the future. You cannot create a reservation with a past time");
+      throw new UniReservaException(UniReservaException.INVALID_TIME);
     }
 
     if (!checkDate(reservation.getParsedDate())) {
-      throw new IllegalArgumentException("You cannot select a past date for your reservation");
+      throw new UniReservaException(UniReservaException.INVALID_DATE);
     }
 
     if (!isAvailable(reservation)) {
-      throw new IllegalArgumentException(
-          "There is already a reservation in the lab selected in the time selected");
+      throw new UniReservaException(UniReservaException.INVALID_RESERVATION);
     }
 
     if (!validatePriority(reservation.getPriority())) {
-      throw new IllegalArgumentException("The priority must be in the range 1-5");
+      throw new UniReservaException(UniReservaException.INVALID_PRIORITY);
     }
 
     Reservation savedReservation = reservationRepository.save(reservation);
@@ -82,7 +81,7 @@ public class ReservationServiceImpl implements ReservationService {
   @Override
   public ApiResponse<List<Reservation>> getReservationsByUserId(String userId) {
     if (!userRepository.existsById(userId)) {
-      throw new IllegalArgumentException("User with id " + userId + " not found.");
+      throw new UniReservaException(UniReservaException.USER_NOT_FOUND);
     }
 
     List<Reservation> reservations =
@@ -114,10 +113,10 @@ public class ReservationServiceImpl implements ReservationService {
   public ApiResponse<Reservation> cancelReservationByReservationId(String reservationId) {
     Reservation reservation = reservationRepository.findById(reservationId).orElse(null);
     if (reservation == null)
-      throw new IllegalArgumentException("Reservation with id " + reservationId + " not found.");
+      throw new UniReservaException(UniReservaException.RESERVATION_NOT_FOUND);
 
     if (reservation.getStatus().equals(ReservationStatus.CANCELED))
-      throw new IllegalArgumentException("This reservation is already cancelled");
+      throw new UniReservaException(UniReservaException.RESERVATION_ALREADY_CANCELED);
 
     reservation.setStatus(ReservationStatus.CANCELED);
     reservationRepository.save(reservation);
@@ -131,14 +130,14 @@ public class ReservationServiceImpl implements ReservationService {
   public ApiResponse<List<Reservation>> getReservationsByRangeDate(
       String lab, String date1, String date2) {
     if (!labRepository.existsById(lab)) {
-      throw new IllegalArgumentException("Lab with id " + lab + " does not exist.");
+      throw new UniReservaException(UniReservaException.LAB_NOT_FOUND);
     }
 
     LocalDate startDate = LocalDate.parse(date1);
     LocalDate endDate = LocalDate.parse(date2);
 
     if (startDate.isAfter(endDate)) {
-      throw new IllegalArgumentException("Start date must be before end date.");
+      throw new UniReservaException(UniReservaException.START_DATE_BEFORE_END_DATE);
     }
 
     List<Reservation> reservations =
@@ -218,9 +217,9 @@ public class ReservationServiceImpl implements ReservationService {
   @Override
   public ApiResponse<List<Reservation>> getAllReservations() {
     return ApiResponse.<List<Reservation>>builder()
-            .status("success")
-            .message("Reseervations retrieved successfully")
-            .data(reservationRepository.findAll())
-            .build();
+        .status("success")
+        .message("Reseervations retrieved successfully")
+        .data(reservationRepository.findAll())
+        .build();
   }
 }
