@@ -1,6 +1,7 @@
 package edu.eci.UniReserva.UniReserva_Backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.eci.UniReserva.UniReserva_Backend.exceptions.UniReservaException;
 import edu.eci.UniReserva.UniReserva_Backend.model.dto.ApiResponse;
 import edu.eci.UniReserva.UniReserva_Backend.model.dto.LoginUserDto;
 import edu.eci.UniReserva.UniReserva_Backend.model.dto.RegisterUserDto;
@@ -72,7 +73,7 @@ class AuthControllerTest {
     LoginUserDto loginRequest = new LoginUserDto("wrong@example.com", "wrongpassword");
 
     Mockito.when(authService.authenticateLogin(any(LoginUserDto.class)))
-        .thenThrow(new BadCredentialsException("Invalid credentials"));
+        .thenThrow(new UniReservaException(UniReservaException.INVALID_PASSWORD_EMAIL));
 
     mockMvc
         .perform(
@@ -81,7 +82,7 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(loginRequest)))
         .andExpect(status().isUnauthorized())
         .andExpect(jsonPath("$.error").value("Unauthorized"))
-        .andExpect(jsonPath("$.message").value("The username or password is incorrect"));
+        .andExpect(jsonPath("$.message").value(UniReservaException.INVALID_PASSWORD_EMAIL));
   }
 
   @Test

@@ -1,5 +1,6 @@
 package edu.eci.UniReserva.UniReserva_Backend.service;
 
+import edu.eci.UniReserva.UniReserva_Backend.exceptions.UniReservaException;
 import edu.eci.UniReserva.UniReserva_Backend.model.User;
 import edu.eci.UniReserva.UniReserva_Backend.model.dto.ApiResponse;
 import edu.eci.UniReserva.UniReserva_Backend.model.dto.UserDto;
@@ -79,13 +80,12 @@ class UserServiceImplTest {
 
     Exception exception =
         assertThrows(
-            IllegalArgumentException.class,
+            UniReservaException.class,
             () ->
                 userServiceImpl.updateUser(
-                    validUser.getId(),
-                    new User(null, null, null, "weakpass", Role.PROFESOR)));
+                    validUser.getId(), new User(null, null, null, "weakpass", Role.PROFESOR)));
 
-    assertEquals("Invalid password", exception.getMessage());
+    assertEquals(UniReservaException.INVALID_PASSWORD, exception.getMessage());
     verify(userRepository, never()).save(any(User.class));
   }
 
@@ -95,12 +95,13 @@ class UserServiceImplTest {
 
     Exception exception =
         assertThrows(
-            IllegalArgumentException.class,
+            UniReservaException.class,
             () ->
                 userServiceImpl.updateUser(
-                    validUser.getId(), new User(null, null, "newEmail@gmail.com", null, Role.PROFESOR)));
+                    validUser.getId(),
+                    new User(null, null, "newEmail@gmail.com", null, Role.PROFESOR)));
 
-    assertEquals("The email cannot be updated", exception.getMessage());
+    assertEquals(UniReservaException.EMAIL_CANNOT_BE_UPDATED, exception.getMessage());
     verify(userRepository, never()).save(any(User.class));
   }
 
@@ -110,12 +111,12 @@ class UserServiceImplTest {
 
     Exception exception =
         assertThrows(
-            IllegalArgumentException.class,
+            UniReservaException.class,
             () ->
                 userServiceImpl.updateUser(
                     validUser.getId(), new User(null, "Alejandro", null, null, Role.PROFESOR)));
 
-    assertEquals("User not found", exception.getMessage());
+    assertEquals(UniReservaException.USER_NOT_FOUND, exception.getMessage());
     verify(userRepository, never()).save(any(User.class));
   }
 
@@ -140,9 +141,9 @@ class UserServiceImplTest {
     when(userRepository.existsById(userId)).thenReturn(false);
 
     Exception exception =
-        assertThrows(IllegalArgumentException.class, () -> userServiceImpl.deleteUser(userId));
+        assertThrows(UniReservaException.class, () -> userServiceImpl.deleteUser(userId));
 
-    assertEquals("User not found", exception.getMessage());
+    assertEquals(UniReservaException.USER_NOT_FOUND, exception.getMessage());
     verify(userRepository, never()).deleteById(anyString());
   }
 
@@ -154,9 +155,9 @@ class UserServiceImplTest {
     when(userRepository.findById(userId)).thenReturn(Optional.of(validUser));
 
     Exception exception =
-        assertThrows(IllegalArgumentException.class, () -> userServiceImpl.deleteUser(userId));
+        assertThrows(UniReservaException.class, () -> userServiceImpl.deleteUser(userId));
 
-    assertEquals("User has Repository, can't be deleted", exception.getMessage());
+    assertEquals(UniReservaException.USER_CANNOT_BE_DELETED, exception.getMessage());
   }
 
   @Test
@@ -180,8 +181,9 @@ class UserServiceImplTest {
     String userId = "999";
     when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-    Exception exception = assertThrows(IllegalArgumentException.class, () -> userServiceImpl.getUser(userId));
+    Exception exception =
+        assertThrows(UniReservaException.class, () -> userServiceImpl.getUser(userId));
 
-    assertEquals("User not found", exception.getMessage());
+    assertEquals(UniReservaException.USER_NOT_FOUND, exception.getMessage());
   }
 }

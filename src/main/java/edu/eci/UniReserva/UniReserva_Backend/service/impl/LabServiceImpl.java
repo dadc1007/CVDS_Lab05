@@ -1,5 +1,6 @@
 package edu.eci.UniReserva.UniReserva_Backend.service.impl;
 
+import edu.eci.UniReserva.UniReserva_Backend.exceptions.UniReservaException;
 import edu.eci.UniReserva.UniReserva_Backend.model.Lab;
 import edu.eci.UniReserva.UniReserva_Backend.model.dto.ApiResponse;
 import edu.eci.UniReserva.UniReserva_Backend.repository.LabRepository;
@@ -30,7 +31,7 @@ public class LabServiceImpl implements LabService {
     Lab lab =
         labRepository
             .findById(labId)
-            .orElseThrow(() -> new IllegalArgumentException("Lab not found with id: " + labId));
+            .orElseThrow(() -> new UniReservaException(UniReservaException.LAB_NOT_FOUND));
 
     return ApiResponse.<String>builder()
         .status("success")
@@ -42,14 +43,10 @@ public class LabServiceImpl implements LabService {
   @Override
   public ApiResponse<Lab> getLabById(String id) {
     Lab lab =
-            labRepository
-                    .findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Lab not found with id: " + id));
+        labRepository
+            .findById(id)
+            .orElseThrow(() -> new UniReservaException(UniReservaException.LAB_NOT_FOUND));
 
-    return ApiResponse.<Lab>builder()
-            .status("success")
-            .message("Lab found")
-            .data(lab)
-            .build();
+    return ApiResponse.<Lab>builder().status("success").message("Lab found").data(lab).build();
   }
 }
