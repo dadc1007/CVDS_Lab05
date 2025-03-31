@@ -85,99 +85,96 @@ A continuación, se presentan algunos de los mockups iniciales realizados en pap
 
   ```yml
       @GetMapping("/allLabs")
-      public List<Lab> getAllLabs() {
-          return labService.getLabs();
-      }
+      public ResponseEntity<ApiResponse<List<Lab>>> getAllLabs() {
+      return ResponseEntity.ok(labService.getLabs());
+  }
   ```
 
   ```yml
       /**
       * Creates a new reservation.
-      * 
+      *
       * @param reservation Object containing the reservation details.
       * @return ResponseEntity with the operation result.
-      * 
-      * Possible responses:
-      * - 200 OK: The reservation was successfully created.
-      * - 400 BAD REQUEST: The reservation could not be created due to invalid data or availability conflicts.
+      *     <p>Possible responses: - 200 OK: The reservation was successfully created. - 400 BAD
+      *     REQUEST: The reservation could not be created due to invalid data or availability
+      *     conflicts.
       */
       @PostMapping
-      public ResponseEntity<Object> createReservation(@RequestBody Reservation reservation) {
-          try {
-              Reservation createdReservation = reservationServiceImpl.createReservation(reservation);
-              return ResponseEntity.status(HttpStatus.CREATED).body(createdReservation);
-          } catch (IllegalArgumentException e) {
-              return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-          }
+      public ResponseEntity<ApiResponse<Reservation>> createReservation(
+          @RequestBody Reservation reservation) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(reservationService.createReservation(reservation));
+  }
   ```
 
   ```yml
-  /**
-     * Endpoint to cancel a reservation.
-     *
-     * This endpoint should:
-     * - Receive the reservation ID from the request path.
-     * - Call the service method to cancel the reservation.
-     * - Return an appropriate HTTP response.
-     *
-     * @param reservationId ID of the reservation to cancel.
-     * @return ResponseEntity with status 200 if successful, 404 if not found, or 400 if already canceled.
-     */
-    @PutMapping("/cancel/{reservationId}")
-    public ResponseEntity<Object> cancelReserve(@PathVariable String reservationId) {
-        try{
-            Reservation reservation = reservationServiceImpl.cancelReservationByReservationId(reservationId);
-            return ResponseEntity.status(HttpStatus.OK).body(reservation);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+      /**
+      * Endpoint to cancel a reservation.
+      *
+      * <p>This endpoint should: - Receive the reservation ID from the request path. - Call the service
+      * method to cancel the reservation. - Return an appropriate HTTP response.
+      *
+      * @param reservationId ID of the reservation to cancel.
+      * @return ResponseEntity with status 200 if successful, 404 if not found, or 400 if already
+      *     canceled.
+      */
+      @PutMapping("/cancel/{reservationId}")
+      public ResponseEntity<ApiResponse<Reservation>> cancelReserve(
+          @PathVariable String reservationId) {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(reservationService.cancelReservationByReservationId(reservationId));
+      }
   ```
 
   🔹 Implementar la lógica de validación para evitar reservas conflictivas.
 
   ```yml
 
-  /**
-     * Creates a new reservation if the lab is available.
-     * 
-     * @param reservation Object containing the reservation details.
-     * @return The created reservation stored in the database.
-     * 
-     *         Possible scenarios:
-     *         - The reservation is successfully stored if the lab is available.
-     *         - An exception is thrown if the lab is already booked for the
-     *         requested time slot.
-     */
+    /**
+    * Creates a new reservation if the lab is available.
+    *
+    * @param reservation Object containing the reservation details.
+    * @return The created reservation stored in the database.
+    *     <p>Possible scenarios: - The reservation is successfully stored if the lab is available. -
+    *     An exception is thrown if the lab is already booked for the requested time slot.
+    */
     @Override
-    public Reservation createReservation(Reservation reservation) {
-        if (!labRepository.existsById(reservation.getLabId())) {
-            throw new IllegalArgumentException("The lab does not exist");
-        }
+    public ApiResponse<Reservation> createReservation(Reservation reservation) {
+      if (!labRepository.existsById(reservation.getLabId())) {
+        throw new UniReservaException(UniReservaException.LAB_NOT_FOUND);
+      }
 
-        if (!userRepository.existsById(reservation.getUserId())) {
-            throw new IllegalArgumentException("The user does not exist");
-        }
+      if (!userRepository.existsById(reservation.getUserId())) {
+        throw new UniReservaException(UniReservaException.USER_NOT_FOUND);
+      }
 
-        if (!checkStartTime(reservation.getParsedStartTime(), reservation.getParsedDate())) {
-            throw new IllegalArgumentException(
-                    "The start time must be in the future. You cannot create a reservation with a past time");
-        }
+      if (!checkStartTime(reservation.getParsedStartTime(), reservation.getParsedDate())) {
+        throw new UniReservaException(UniReservaException.INVALID_TIME);
+      }
 
-        if (!checkDate(reservation.getParsedDate())) {
-            throw new IllegalArgumentException("You cannot select a past date for your reservation");
-        }
+      if (!checkDate(reservation.getParsedDate())) {
+        throw new UniReservaException(UniReservaException.INVALID_DATE);
+      }
 
-        if (!isAvailable(reservation)) {
-            throw new IllegalArgumentException(
-                    "There is already a reservation in the lab selected in the time selected");
-        }
+      if (!isAvailable(reservation)) {
+        throw new UniReservaException(UniReservaException.INVALID_RESERVATION);
+      }
 
-        Reservation savedReservation = reservationRepository.save(reservation);
+      if (!validatePriority(reservation.getPriority())) {
+        throw new UniReservaException(UniReservaException.INVALID_PRIORITY);
+      }
 
-        addReservationToLab(reservation);
-        addReservationToUser(reservation);
+      Reservation savedReservation = reservationRepository.save(reservation);
 
-        return savedReservation;
+      addReservationToLab(reservation);
+      addReservationToUser(reservation);
+
+      return ApiResponse.<Reservation>builder()
+          .status("success")
+          .message("Reservation created successfully")
+          .data(savedReservation)
+          .build();
     }
 
   ```
