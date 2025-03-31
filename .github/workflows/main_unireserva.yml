@@ -41,6 +41,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     needs: build 
+    permissions:
+      contents: read #This is required for actions/checkout
     
     steps:
       - name: Checkout código
